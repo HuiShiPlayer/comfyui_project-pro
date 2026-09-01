@@ -1,0 +1,2084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绘世玩家 ComfyUI API 可视化编辑器</title>
+    <style>
+		[v-cloak] {
+			display: none;
+		}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+       /* 配置下拉列表样式：基于paramPanel定位 */
+       #configDropdown {
+           position: absolute;
+           background-color: #282838;
+           border: 1px solid #484858;
+           border-radius: 6px;
+           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+           z-index: 9999; /* 确保层级高于paramPanel */
+           min-width: 200px;
+           max-height: 200px;
+           overflow-y: auto;
+           display: none;
+           /* 初始位置：paramPanel左侧，垂直居中（后续JS动态调整） */
+           top: 50%;
+           left: -210px; /* 200px宽度 + 10px间距 */
+           transform: translateY(-50%);
+       }
+	 
+       
+       #configDropdown.show {
+           display: block;
+           animation: fadeIn 0.2s ease;
+       }
+       
+       .config-dropdown-item {
+           padding: 8px 12px;
+           color: #e0e0e0;
+           cursor: pointer;
+           transition: background-color 0.2s ease;
+       }
+       
+       .config-dropdown-item:hover {
+           background-color: #383848;
+       }
+       
+       /* 保留param-group的相对定位（不影响） */
+       .param-group {
+           position: relative;
+           margin-bottom: 15px;
+       }
+		
+		
+		
+        body {
+            background-color: #1e1e2e;
+            color: #e0e0e0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.4;
+        }
+        
+        /* 顶部导航 - 美化升级（新增ID定位搜索框） */
+        header {
+            background-color: #282838;
+            padding: 12px 24px;
+            border-bottom: 1px solid #404050;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        header h1 {
+            font-size: 1.3rem;
+            color: #a0a0ff;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        header h1 i {
+            font-size: 1.2rem;
+        }
+        
+        /* 新增：ID定位搜索容器 */
+        .id-locator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #383848;
+            border-radius: 6px;
+            padding: 6px 12px;
+            border: 1px solid #484858;
+            width: 280px;
+        }
+        
+        .id-locator i {
+            color: #a0a0ff;
+            font-size: 0.9rem;
+        }
+        
+        #nodeIdInput {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        
+        #nodeIdInput::placeholder {
+            color: #8080a0;
+        }
+        
+        #locateBtn {
+            background: transparent;
+            border: none;
+            color: #a0a0ff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+        
+        #locateBtn:hover {
+            color: #c0c0ff;
+        }
+        
+        #locateBtn:disabled {
+            color: #686878;
+            cursor: not-allowed;
+        }
+        
+        header .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        /* 按钮样式统一美化 */
+        .btn {
+            background-color: #383848;
+            border: 1px solid #484858;
+            color: #e0e0e0;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn:hover:not(:disabled) {
+            background-color: #484858;
+            border-color: #585868;
+        }
+        
+        .btn-primary {
+            background-color: #a0a0ff;
+            border-color: #b0b0ff;
+            color: #1e1e2e;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background-color: #b0b0ff;
+            border-color: #c0c0ff;
+        }
+        
+        .btn-import {
+            background-color: #60a060;
+            border-color: #70b070;
+        }
+        
+        .btn-import:hover:not(:disabled) {
+            background-color: #70b070;
+            border-color: #80c080;
+        }
+        
+        .btn-generate {
+            background-color: #ff9500;
+            border-color: #ffaa33;
+        }
+        
+        .btn-generate:hover:not(:disabled) {
+            background-color: #ffaa33;
+            border-color: #ffbb55;
+        }
+        
+        /* 主容器：Canvas + 侧边面板 */
+        .main-container {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        
+        /* Canvas画布容器 */
+        #canvasContainer {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #comfyCanvas {
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e2e;
+            cursor: grab;
+            transition: cursor 0.1s ease;
+        }
+        
+        #comfyCanvas:active {
+            cursor: grabbing;
+        }
+        
+        /* 空状态提示 */
+        .empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #8080a0;
+            z-index: 5;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: #484858;
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state small {
+            font-size: 0.9rem;
+            color: #686878;
+        }
+        
+        /* 参数编辑面板 - 美化升级 */
+       .param-panel {
+           position: absolute;
+               top: 50%;
+               right: 20px;
+               transform: translateY(-50%);
+               width: 340px;
+               max-height: 80vh; /* 限制最大高度为视口80%，防止超出屏幕 */
+               background-color: #282838;
+               border: 1px solid #404050;
+               border-radius: 10px;
+               padding: 20px;
+               box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+               z-index: 20;
+               display: none;
+               transition: all 0.2s ease;
+               overflow-y: auto; /* 开启垂直滚动 */
+               overflow-x: hidden; /* 禁止水平滚动 */
+        }
+		
+        .param-panel::-webkit-scrollbar {
+            width: 6px; /* 比全局滚动条稍窄，更精致 */
+            height: 6px;
+        }
+        
+        .param-panel::-webkit-scrollbar-thumb {
+            background-color: #585868;
+            border-radius: 3px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .param-panel::-webkit-scrollbar-thumb:hover {
+            background-color: #a0a0ff; /* 悬浮时用主题色，更醒目 */
+        }
+        
+        .param-panel::-webkit-scrollbar-track {
+            background-color: #303040; /* 面板内滚动条轨道色，适配面板背景 */
+            border-radius: 3px;
+            margin: 10px 0; /* 轨道上下留间距，更美观 */
+        }
+        
+        /* 修复滚动时面板内边距和标题布局 */
+        .param-panel h3 {
+            color: #a0a0ff;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #404050;
+            font-size: 1.1rem;
+            font-weight: 600;
+            position: sticky; /* 标题粘性定位，滚动时保持顶部可见 */
+            top: 0;
+            background-color: #282838; /* 背景覆盖滚动内容 */
+            z-index: 1;
+            padding-top: 5px; /* 增加顶部内边距，避免紧贴 */
+        }
+        
+        .param-panel .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            position: sticky; /* 操作按钮粘性定位，滚动时保持底部可见 */
+            bottom: 0;
+            background-color: #282838; /* 背景覆盖滚动内容 */
+            padding-top: 10px;
+            padding-bottom: 5px;
+            border-top: 1px solid #404050; /* 顶部加分割线，区分内容 */
+            z-index: 1;
+        }
+        .param-panel.show {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-50%) scale(0.98); }
+            to { opacity: 1; transform: translateY(-50%) scale(1); }
+        }
+        
+        .param-panel h3 {
+            color: #a0a0ff;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #404050;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .param-group {
+            margin-bottom: 15px;
+        }
+        
+        .param-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: #b0b0c0;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .param-group input,
+        .param-group select,
+        .param-group textarea {
+            width: 100%;
+            padding: 8px 10px;
+            background-color: #383848;
+            border: 1px solid #484858;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .param-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+            cursor: pointer;
+        }
+        
+        .param-group input:focus,
+        .param-group select:focus,
+        .param-group textarea:focus {
+            border-color: #a0a0ff;
+            box-shadow: 0 0 0 2px rgba(160, 160, 255, 0.2);
+        }
+        
+        .param-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .param-panel .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* 导入模态框 */
+        .import-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .import-modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            width: 500px;
+            background-color: #282838;
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid #404050;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content h3 {
+            color: #a0a0ff;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .import-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .import-option {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #383848;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .import-option:hover {
+            background-color: #404050;
+            border-color: #a0a0ff;
+        }
+        
+        .import-option i {
+            font-size: 1.5rem;
+            color: #a0a0ff;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .import-content {
+            display: none;
+        }
+        
+        .import-content.active {
+            display: block;
+        }
+        
+        #jsonTextarea {
+            width: 100%;
+            height: 180px;
+            background-color: #1e1e2e;
+            border: 1px solid #484858;
+            border-radius: 6px;
+            color: #e0e0e0;
+            padding: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            resize: none;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        #jsonFile {
+            display: none;
+        }
+        
+        .file-label {
+            display: block;
+            padding: 40px 20px;
+            text-align: center;
+            border: 2px dashed #484858;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 15px;
+        }
+        
+        .file-label:hover {
+            border-color: #a0a0ff;
+            background-color: rgba(160, 160, 255, 0.05);
+        }
+        
+        .file-label i {
+            font-size: 2rem;
+            color: #8080a0;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        /* 新增：初始化蒙版 - 页面打开默认弹出 */
+        .init-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* animation: fadeIn 0.5s ease; */
+        }
+        
+        .init-modal .modal-content {
+            width: 420px;
+            padding: 30px;
+        }
+        
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            background-color: #282838;
+            border-left: 4px solid #a0a0ff;
+            color: #e0e0e0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .toast.success {
+            border-left-color: #60a060;
+        }
+        
+        .toast.error {
+            border-left-color: #e06060;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* 滚动条样式优化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background-color: #585868;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #787888;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background-color: #282838;
+            border-radius: 4px;
+        }
+
+        /* 节点ID高亮样式 */
+        .node-id-badge {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            background-color: rgba(255, 149, 0, 0.9);
+            color: #1e1e2e;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 1;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* 节点定位高亮动画 */
+        @keyframes highlightNode {
+            0% { box-shadow: 0 0 0 2px #ff9500, 0 0 10px rgba(255, 149, 0, 0.5); }
+            50% { box-shadow: 0 0 0 4px #ff9500, 0 0 20px rgba(255, 149, 0, 0.8); }
+            100% { box-shadow: 0 0 0 2px #ff9500, 0 0 10px rgba(255, 149, 0, 0.5); }
+        }
+
+        .node-highlight {
+            animation: highlightNode 1.5s infinite;
+        }
+		
+		/* 模型库 */
+		/* 模型库分类面板 - 左侧200px */
+		.model-library-panel {
+		    position: fixed;
+		    top: 0;
+		    left: 0;
+		    width: 300px;
+		    height: 100vh;
+		    background-color: #282838;
+		    border-right: 1px solid #484858;
+		    z-index: 9999;
+		    display: none;
+		    flex-direction: column;
+		    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+		    overflow: hidden;
+		}
+		
+		.model-library-panel.show {
+		    display: flex;
+		    animation: slideInLeft 0.2s ease;
+		}
+		
+		@keyframes slideInLeft {
+		    from { transform: translateX(-100%); opacity: 0; }
+		    to { transform: translateX(0); opacity: 1; }
+		}
+		
+		/* 模型库搜索框 */
+		.model-search-box {
+		    padding: 12px;
+		    background-color: #383848;
+		    border-bottom: 1px solid #484858;
+		}
+		
+		.model-search-input {
+		    width: 100%;
+		    padding: 8px 10px;
+		    background-color: #1e1e2e;
+		    border: 1px solid #484858;
+		    border-radius: 6px;
+		    color: #e0e0e0;
+		    font-size: 0.85rem;
+		    outline: none;
+		    font-family: 'Consolas', 'Monaco', monospace;
+		}
+		
+		.model-search-input::placeholder {
+		    color: #8080a0;
+		}
+		
+		/* 分类列表容器 */
+		.category-list {
+		    flex: 1;
+		    overflow-y: auto;
+		    padding: 8px 0;
+		}
+		
+		.category-list::-webkit-scrollbar {
+		    width: 6px;
+		    height: 6px;
+		}
+		
+		.category-list::-webkit-scrollbar-thumb {
+		    background-color: #585868;
+		    border-radius: 3px;
+		    transition: background-color 0.2s ease;
+		}
+		
+		.category-list::-webkit-scrollbar-thumb:hover {
+		    background-color: #a0a0ff;
+		}
+		
+		.category-list::-webkit-scrollbar-track {
+		    background-color: #303040;
+		    border-radius: 3px;
+		    margin: 10px 0;
+		}
+		
+		/* 分类项样式 */
+		.category-item {
+		    display: flex;
+		    justify-content: space-between;
+		    align-items: center;
+		    padding: 10px 12px;
+		    margin: 0 8px;
+		    border-radius: 6px;
+		    cursor: default;
+		    transition: background-color 0.2s ease;
+		}
+		
+		.category-item:hover {
+		    background-color: #383848;
+		}
+		
+		.category-name {
+		    color: #e0e0e0;
+		    font-size: 0.85rem;
+		    white-space: nowrap;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		}
+		
+		.view-btn {
+		    background-color: #383848;
+		    border: 1px solid #484858;
+		    color: #a0a0ff;
+		    padding: 2px 8px;
+		    border-radius: 4px;
+		    cursor: pointer;
+		    font-size: 0.75rem;
+		    transition: all 0.2s ease;
+		}
+		
+		.view-btn:hover {
+		    background-color: #484858;
+		    border-color: #585868;
+		    color: #c0c0ff;
+		}
+		
+		/* 模型列表面板 - 右侧500px */
+		.model-list-panel {
+		    position: fixed;
+		    top: 0;
+		    left: 300px;
+		    width: 500px;
+		    height: 100vh;
+		    background-color: #282838;
+		    border-right: 1px solid #484858;
+		    z-index: 9999;
+		    display: none;
+		    flex-direction: column;
+		    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+		    overflow: hidden;
+		}
+		
+		.model-list-panel.show {
+		    display: flex;
+		    animation: slideInLeft 0.2s ease;
+		}
+		
+		/* 模型项样式 */
+		.model-list {
+		    flex: 1;
+		    overflow-y: auto;
+		    padding: 8px 0;
+		}
+		
+		.model-list::-webkit-scrollbar {
+		    width: 6px;
+		    height: 6px;
+		}
+		
+		.model-list::-webkit-scrollbar-thumb {
+		    background-color: #585868;
+		    border-radius: 3px;
+		    transition: background-color 0.2s ease;
+		}
+		
+		.model-list::-webkit-scrollbar-thumb:hover {
+		    background-color: #a0a0ff;
+		}
+		
+		.model-list::-webkit-scrollbar-track {
+		    background-color: #303040;
+		    border-radius: 3px;
+		    margin: 10px 0;
+		}
+		
+		.model-item {
+		    display: flex;
+		    justify-content: space-between;
+		    align-items: center;
+		    padding: 10px 12px;
+		    margin: 0 8px;
+		    border-radius: 6px;
+		    cursor: default;
+		    transition: background-color 0.2s ease;
+		}
+		
+		.model-item:hover {
+		    background-color: #383848;
+		}
+		
+		.model-name {
+		    color: #e0e0e0;
+		    font-size: 0.85rem;
+		    white-space: nowrap;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    max-width: 380px;
+		}
+		
+		.copy-btn {
+		    background-color: #383848;
+		    border: 1px solid #484858;
+		    color: #60a060;
+		    padding: 2px 8px;
+		    border-radius: 4px;
+		    cursor: pointer;
+		    font-size: 0.75rem;
+		    transition: all 0.2s ease;
+		}
+		
+		.copy-btn:hover {
+		    background-color: #484858;
+		    border-color: #585868;
+		    color: #70b070;
+		}
+		
+		/* 复制成功提示 */
+		.copy-toast {
+		    position: fixed;
+		    bottom: 20px;
+		    left: 300px;
+		    padding: 8px 16px;
+		    border-radius: 6px;
+		    background-color: #282838;
+		    border-left: 4px solid #60a060;
+		    color: #e0e0e0;
+		    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		    z-index: 10000;
+		    display: none;
+		    animation: slideIn 0.3s ease;
+		    font-size: 0.85rem;
+		}
+		
+		.copy-toast.show {
+		    display: block;
+		}
+    </style>
+    <!-- 引入Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<script src="../../../js/vue.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../js/jquery-3.1.0.min.js" type="text/javascript"></script>
+	<script src="../../../js/app_admin.js" type="text/javascript" charset="utf-8"></script>
+	
+	
+</head>
+<body id="">	
+    <header>	
+        <h1>
+            <i class="fas fa-cubes"></i>
+            AI绘视玩家 ComfyUI API 可视化编辑器
+        </h1>
+        <div class="actions">
+			<button id="" class="btn btn-location" onclick="getModel()">
+			    <i class="fas fa-file" ></i>模型库
+			</button>
+			<button id="" class="btn btn-primary" onclick="saveApi()">
+			    <i class="fas fa-save"></i>保存API
+			</button>
+			<button id="baseInfo" class="btn">
+			    <i class="fas fa-search-location"></i>API基础信息
+			</button>
+            <!-- ID定位搜索框 -->
+            <div class="id-locator">
+                <i class="fas fa-search"></i>
+                <input type="text" id="nodeIdInput" placeholder="输入节点ID快速定位...">
+                <button id="locateBtn" disabled><i class="fas fa-location-arrow"></i></button>
+            </div>
+            
+            <button id="importBtn" class="btn btn-import">
+                <i class="fas fa-upload"></i>导入API JSON
+            </button>
+            <button id="resetBtn" class="btn" disabled>
+                <i class="fas fa-refresh"></i>重置画布
+            </button>
+            <button id="zoomInBtn" class="btn" disabled>
+                <i class="fas fa-search-plus"></i>放大
+            </button>
+            <button id="zoomOutBtn" class="btn" disabled>
+                <i class="fas fa-search-minus"></i>缩小
+            </button>
+        </div>
+    </header>
+    <div id="main" >
+		<div id="" class="main-container" >
+			<div id="canvasContainer">
+				<!-- 空状态提示 -->
+				<div class="empty-state" id="emptyState">
+					<i class="fas fa-file-import"></i>
+					<p>暂无API数据，请先导入JSON</p>
+					<small>支持粘贴JSON文本或上传JSON文件</small>
+				</div>
+				<canvas id="comfyCanvas"></canvas>
+			</div>
+			<div class="param-panel" style="display: block;left:2%"  v-if="data.type != -1">
+				<h3 id="">可选参数配置</h3>
+				<div >
+					<div class="param-group" v-for="(value, key) in preDatas[data.type]" :key="key">
+						<label style="float: left;">{{key}}</label>
+						<button v-if="value.status == 1"  style="float: right; padding: 1px 10px " class="btn custom-btn-success" disabled>
+						    已配置
+						</button>
+						<button v-if="value.status == 0"  style="float: right;padding: 1px 10px " class="btn btn-primary" aria-readonly="true" >
+						    未标记
+						</button>
+						<div style="clear: both;"></div>
+					</div>
+					
+				</div>
+				
+			</div>
+			<!-- 参数编辑面板 -->
+			<div class="param-panel" id="paramPanel">
+				<h3 id="panelTitle">节点参数编辑</h3>
+				 <!-- 下拉列表容器：移到paramPanel内部 -->
+				    <div class="config-dropdown" id="configDropdown">
+				        <div class="config-dropdown-item"  v-for="(value, key) in preDatas[data.type]" :data-value="value.value">{{key}}</div>
+			
+				    </div>
+				<div id="paramForm"></div>
+				<div class="actions">
+					<button class="btn" id="cancelParam">取消</button>
+					<button class="btn btn-primary" id="saveParam">保存修改</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 导入模态框 -->
+		<div class="import-modal" id="importModal">
+			<div class="modal-content">
+				<h3><i class="fas fa-file-import"></i> 导入ComfyUI API JSON</h3>
+				<div class="import-options">
+					<div class="import-option" data-target="paste">
+						<i class="fas fa-paste"></i>
+						<div>粘贴JSON文本</div>
+					</div>
+					<div class="import-option" data-target="file">
+						<i class="fas fa-file"></i>
+						<div>上传JSON文件</div>
+					</div>
+				</div>
+				<div class="import-content active" id="pasteContent">
+					<textarea id="jsonTextarea" placeholder="请粘贴ComfyUI API JSON内容..."></textarea>
+				</div>
+				<div class="import-content" id="fileContent">
+					<label for="jsonFile" class="file-label">
+						<i class="fas fa-cloud-upload-alt"></i>
+						<div>点击选择JSON文件</div>
+						<div style="font-size: 0.8rem; color: #8080a0; margin-top: 8px;">支持 .json 格式文件</div>
+					</label>
+					<input type="file" id="jsonFile" accept=".json">
+				</div>
+				<div class="modal-actions">
+					<button class="btn" id="closeModal">取消</button>
+					<button class="btn btn-primary" id="confirmImport">确认导入</button>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 新增：初始化蒙版 - 页面打开默认弹出 -->
+		<div class="init-modal" id="initModal">
+			<div class="modal-content">
+				<h3><i class="fas fa-cog"></i> 初始化配置</h3>
+				<div class="param-group">
+					<label for="initName">名称</label>
+					<input type="text" id="initName" v-model="data.name" placeholder="请输入配置名称" autocomplete="off">
+				</div>
+				<div class="param-group">
+					<label for="initOutputNo">输出编号</label>
+					<input type="text" v-model="data.outputsNum" id="initOutputNo"  placeholder="请输入输出编号">
+				</div>
+				<div class="param-group">
+					<label for="initSource">来源</label>
+					<select id="initSource" v-model="data.classType">
+						<option  value= "-1">API来源</option>
+						<option  value="0" >comfyui</option>
+						<option  value="1" >RunningHub</option>
+						<option  value="2" >云平台</option>
+					</select>
+				</div>
+				<div class="param-group" v-show="data.classType==1">
+					<label for="workflowId">工作流ID</label>
+					<input type="text" id="workflowId" v-model="data.workflowId" placeholder="请输入工作流ID" autocomplete="off">
+					
+				</div>
+				<div class="param-group">
+					<label for="initCate">分类</label>
+					<select id="initCate" v-model="data.type">
+						<option  value= "-1">API分类</option>
+						<option  value="0" >文生图API</option>
+						<option  value="4" >单图生图API</option>	
+						<option  value="5" >双图生图API</option>	
+						<option  value="6" >三图生图API</option>	
+						<option  value="1" >文生视频API</option>		
+						<option  value="2" >图生视频API</option>	
+						<option  value="3" >首尾帧|双图参考API</option>
+						<option  value="10" >三图参考API</option>
+						<option  value="7" >视频参考</option>
+						<option  value="8" >数字人</option>
+						<option  value="9" >TTS</option>
+					</select>
+				</div>
+				<div class="param-group">
+					<label for="initDefault">是否默认</label>
+					<select id="initDefault" v-model="data.isDefault">
+						<option value="1">是</option>
+						<option value="0">否</option>
+					</select>
+				</div>
+				<div class="modal-actions">
+					<!-- <button class="btn" id="closeInitModal">取消</button> -->
+					<button class="btn btn-primary" id="confirmInit">下一步</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 提示消息 -->
+		<div class="toast" id="toast"></div>
+		
+		<!-- 模型库分类面板 -->
+		<div class="model-library-panel" id="modelLibraryPanel" >
+		    <div class="model-search-box">
+		        <input type="text" class="model-search-input" v-model="checkdir" id="categorySearchInput" @input="selectDir" placeholder="搜索分类名称...">
+		    </div>
+		    <div class="category-list" id="categoryList" >
+		        <!-- 分类项示例（实际可通过JS动态生成） -->
+		        <div class="category-item" v-for="(item,index) in modelDirs"  @click="showModeList(item)">
+		            <span class="category-name">{{item}}</span>
+		            <button class="view-btn" data-category="text2img" >查看</button>
+		        </div>
+		    </div>
+		</div>
+		
+		<!-- 模型列表面板 -->
+		<div class="model-list-panel" id="modelListPanel">
+		    <div class="model-search-box">
+		        <input type="text" class="model-search-input" v-model="checkModel"  id="modelSearchInput" @input="selectModel" placeholder="搜索模型名称...">
+		    </div>
+		    <div class="model-list" id="modelList">
+		        <!-- 模型项示例（实际可通过JS动态生成） -->
+		        <div class="model-item"  v-for="(item,index) in models">
+		            <span class="model-name">{{item}}</span>
+		            <button class="copy-btn" @click="copyModel(item)">复制</button>
+		        </div>
+		       
+		    </div>
+		</div>
+		
+		
+	</div>
+	<!-- 模型库 -->
+	
+	<script src="../page/vue/api_edit_vue.js"></script>
+    <script>
+		function bindModelLibraryEvents(){
+			const modelLibraryBtn = document.querySelector('.btn-location');
+			const modelLibraryPanel = document.getElementById('modelLibraryPanel');
+			const modelListPanel = document.getElementById('modelListPanel');
+			
+			document.addEventListener('click', (e) => {
+				const isClickInLibrary = modelLibraryPanel.contains(e.target);
+				const isClickInModelList = modelListPanel.contains(e.target);
+				const isClickOnBtn = modelLibraryBtn.contains(e.target);
+				modelLibraryBtn.addEventListener('click', () => {
+					modelLibraryPanel.classList.add('show');
+					// 关闭模型列表面板（初始状态）
+					modelListPanel.classList.remove('show');
+				});
+
+				if (!isClickInLibrary && !isClickInModelList && !isClickOnBtn) {
+					modelLibraryPanel.classList.remove('show');
+					modelListPanel.classList.remove('show');
+				}
+			})
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+		    // 原有初始化代码...
+		    bindModelLibraryEvents(); // 新增这行
+		});
+		function getModel(){
+			main.getModel()
+		}
+		
+        // ===================== 核心数据定义 =====================
+        let comfyWorkflow = {};
+        const canvas = document.getElementById('comfyCanvas');
+        const ctx = canvas.getContext('2d');
+        let canvasWidth = canvasContainer.clientWidth;
+        let canvasHeight = canvasContainer.clientHeight;
+        const dpr = window.devicePixelRatio || 1;
+        
+        // 性能优化：离屏Canvas缓存节点绘制
+        const offscreenCanvas = document.createElement('canvas');
+        const offscreenCtx = offscreenCanvas.getContext('2d');
+        
+        // 交互状态
+        let scale = 1.0; 
+        let offsetX = 0; 
+        let offsetY = 0; 
+        let isDraggingCanvas = false; 
+        let dragStartX = 0; 
+        let dragStartY = 0; 
+        let selectedNodeId = null; 
+        let isDraggingNode = false; 
+        let dragNodeStartX = 0; 
+        let dragNodeStartY = 0; 
+        let importType = 'paste';
+        let highlightedNodeId = null;
+        let isDrawing = false; // 防止重复绘制
+        const NODE_POS_CACHE = new Map(); // 节点位置缓存
+        const nodeZIndex = new Map(); // 节点层级管理
+        let currentMaxZIndex = 0; // 当前最大层级值
+        // 新增：存储初始化配置数据
+        let initConfig = {};
+
+        // ===================== 初始化 =====================
+        window.addEventListener('DOMContentLoaded', () => {
+            resizeCanvas();
+            updateUIState();
+            bindEvents();
+            bindImportEvents();
+            bindIdLocatorEvents();
+            bindWheelZoomEvent();
+            bindInitModalEvents(); // 绑定初始化蒙版事件
+        });
+
+        window.addEventListener('resize', () => {
+            clearTimeout(window.resizeTimer);
+            window.resizeTimer = setTimeout(resizeCanvas, 100);
+        });
+
+		document.getElementById('baseInfo').addEventListener('click', (e) => {
+			
+		     const initModal = document.getElementById('initModal');
+			 initModal.style.display=""
+		});		
+        // ===================== 鼠标滚轮缩放功能 =====================
+        function bindWheelZoomEvent() {
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if (Object.keys(comfyWorkflow).length === 0) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) / dpr;
+                const mouseY = (e.clientY - rect.top) / dpr;
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newScale = Math.max(0.5, Math.min(2.0, scale + delta));
+                
+                if (newScale === scale) return;
+                
+                const mouseXScaled = (mouseX - offsetX) / scale;
+                const mouseYScaled = (mouseY - offsetY) / scale;
+                scale = newScale;
+                offsetX = mouseX - (mouseXScaled * scale);
+                offsetY = mouseY - (mouseYScaled * scale);
+                
+                drawCanvas();
+            }, { passive: false });
+        }
+
+        // ===================== Canvas功能 =====================
+        function resizeCanvas() {
+            canvasWidth = canvasContainer.clientWidth;
+            canvasHeight = canvasContainer.clientHeight;
+            
+            canvas.width = canvasWidth * dpr;
+            canvas.height = canvasHeight * dpr;
+            offscreenCanvas.width = canvasWidth * dpr;
+            offscreenCanvas.height = canvasHeight * dpr;
+            
+            ctx.scale(dpr, dpr);
+            offscreenCtx.scale(dpr, dpr);
+            ctx.translate(0.5, 0.5);
+            offscreenCtx.translate(0.5, 0.5);
+            
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'left';
+            ctx.fontSmoothingEnabled = true;
+            offscreenCtx.textBaseline = 'middle';
+            offscreenCtx.textAlign = 'left';
+            offscreenCtx.fontSmoothingEnabled = true;
+            
+            drawCanvas();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+            
+            ctx.fillStyle = '#1e1e2e';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+            drawGrid();
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#282838';
+            ctx.lineWidth = 1;
+            const gridSize = 20 * scale;
+            
+            const startX = Math.max(0, offsetX % gridSize - gridSize * 2);
+            const startY = Math.max(0, offsetY % gridSize - gridSize * 2);
+            const endX = Math.min(canvasWidth, offsetX % gridSize + canvasWidth + gridSize * 2);
+            const endY = Math.min(canvasHeight, offsetY % gridSize + canvasHeight + gridSize * 2);
+            
+            for (let x = startX; x < endX; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvasHeight);
+                ctx.stroke();
+            }
+            
+            for (let y = startY; y < endY; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvasWidth, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawCanvas() {
+            if (isDrawing || Object.keys(comfyWorkflow).length === 0) {
+                clearCanvas();
+                return;
+            }
+            
+            isDrawing = true;
+            requestAnimationFrame(() => {
+                clearCanvas();
+                drawNodesToOffscreen();
+                ctx.drawImage(offscreenCanvas, 0, 0);
+                isDrawing = false;
+            });
+        }
+
+        function drawNodesToOffscreen() {
+            NODE_POS_CACHE.clear();
+            const entries = Object.entries(comfyWorkflow).sort((a, b) => {
+                const z1 = nodeZIndex.get(a[0]) || 0;
+                const z2 = nodeZIndex.get(b[0]) || 0;
+                return z1 - z2;
+            });
+            
+            entries.forEach(([nodeId, node]) => {
+                const { x, y } = node.pos;
+                const nodeWidth = 240;
+                const nodeHeight = getNodeHeight(node);
+                const drawX = (x * scale) + offsetX;
+                const drawY = (y * scale) + offsetY;
+                
+                NODE_POS_CACHE.set(nodeId, {
+                    x: drawX,
+                    y: drawY,
+                    width: nodeWidth * scale,
+                    height: nodeHeight * scale,
+                    originalWidth: nodeWidth,
+                    originalHeight: nodeHeight,
+                    originalX: x,
+                    originalY: y,
+                    zIndex: nodeZIndex.get(nodeId) || 0
+                });
+                
+                const isHighlighted = highlightedNodeId === nodeId;
+                offscreenCtx.fillStyle = selectedNodeId === nodeId ? '#383858' : '#282838';
+                offscreenCtx.fillRect(drawX, drawY, nodeWidth * scale, nodeHeight * scale);
+                
+                if (isHighlighted) {
+                    offscreenCtx.strokeStyle = '#ff9500';
+                    offscreenCtx.lineWidth = 3;
+                    offscreenCtx.strokeRect(drawX - 1, drawY - 1, nodeWidth * scale + 2, nodeHeight * scale + 2);
+                }
+                
+                offscreenCtx.strokeStyle = selectedNodeId === nodeId ? '#a0a0ff' : '#484858';
+                offscreenCtx.lineWidth = 2;
+                offscreenCtx.strokeRect(drawX, drawY, nodeWidth * scale, nodeHeight * scale);
+                
+                offscreenCtx.fillStyle = '#a0a0ff';
+                offscreenCtx.fillRect(drawX, drawY, nodeWidth * scale, 30 * scale);
+                
+                offscreenCtx.fillStyle = '#1e1e2e';
+                offscreenCtx.font = `bold ${14 * scale}px sans-serif`;
+                drawTextWithWrap(offscreenCtx, node.class_type, drawX + 8 * scale, drawY + 15 * scale, (nodeWidth - 40) * scale, 14 * scale);
+                
+                offscreenCtx.fillStyle = '#ff9500';
+                offscreenCtx.fillRect(drawX + (nodeWidth - 60) * scale, drawY + 4 * scale, 52 * scale, 18 * scale);
+                offscreenCtx.fillStyle = '#1e1e2e';
+                offscreenCtx.font = `bold ${11 * scale}px sans-serif`;
+                offscreenCtx.textAlign = 'center';
+                offscreenCtx.fillText(`ID: ${nodeId}`, drawX + (nodeWidth - 30) * scale, drawY + 13 * scale);
+                offscreenCtx.textAlign = 'left';
+                
+                offscreenCtx.fillStyle = '#e0e0e0';
+                offscreenCtx.font = `${12 * scale}px sans-serif`;
+                let paramY = drawY + 35 * scale;
+                
+                Object.entries(node.inputs).forEach(([key, value]) => {
+                    if (Array.isArray(value)) return;
+                    
+                    offscreenCtx.fillText(`${key}:`, drawX + 8 * scale, paramY);
+                    const valueStr = String(value);
+                    const valueWidth = (nodeWidth - 40) * scale;
+                    const lines = getTextLines(offscreenCtx, valueStr, valueWidth, 12 * scale);
+                    
+                    offscreenCtx.textAlign = 'right';
+                    offscreenCtx.fillText(lines[0], drawX + (nodeWidth - 8) * scale, paramY);
+                    offscreenCtx.textAlign = 'left';
+                    
+                    lines.slice(1).forEach(line => {
+                        paramY += 16 * scale;
+                        offscreenCtx.textAlign = 'right';
+                        offscreenCtx.fillText(line, drawX + (nodeWidth - 8) * scale, paramY);
+                        offscreenCtx.textAlign = 'left';
+                    });
+                    
+                    paramY += 20 * scale;
+                });
+                
+                drawNodeConnectionsToOffscreen(nodeId, drawX, drawY, nodeWidth, nodeHeight);
+            });
+        }
+
+        function drawNodeConnectionsToOffscreen(nodeId, drawX, drawY, nodeWidth, nodeHeight) {
+            const node = comfyWorkflow[nodeId];
+            const connectionRadius = 6 * scale;
+            const outputConnections = [];
+            
+            Object.entries(comfyWorkflow).forEach(([targetId, targetNode]) => {
+                Object.entries(targetNode.inputs).forEach(([paramKey, paramValue]) => {
+                    if (Array.isArray(paramValue) && paramValue[0] === nodeId) {
+                        outputConnections.push({
+                            targetId,
+                            paramKey,
+                            outputIndex: paramValue[1]
+                        });
+                    }
+                });
+            });
+
+            outputConnections.forEach((conn, index) => {
+                const outputY = drawY + 30 * scale + (index * 20 * scale) + 10 * scale;
+                offscreenCtx.fillStyle = '#80e080';
+                offscreenCtx.beginPath();
+                offscreenCtx.arc(drawX + (nodeWidth * scale), outputY, connectionRadius, 0, Math.PI * 2);
+                offscreenCtx.fill();
+                drawConnectionLineToOffscreen(nodeId, conn.targetId, drawX + (nodeWidth * scale), outputY, conn.paramKey);
+            });
+
+            let inputIndex = 0;
+            Object.entries(node.inputs).forEach(([paramKey, paramValue]) => {
+                if (Array.isArray(paramValue)) {
+                    const inputY = drawY + 30 * scale + (inputIndex * 20 * scale) + 10 * scale;
+                    offscreenCtx.fillStyle = '#e08080';
+                    offscreenCtx.beginPath();
+                    offscreenCtx.arc(drawX, inputY, connectionRadius, 0, Math.PI * 2);
+                    offscreenCtx.fill();
+                    inputIndex++;
+                }
+            });
+        }
+
+        function drawConnectionLineToOffscreen(sourceNodeId, targetNodeId, sourceX, sourceY, paramKey) {
+            const targetNode = comfyWorkflow[targetNodeId];
+            const targetCache = NODE_POS_CACHE.get(targetNodeId);
+            if (!targetCache) return;
+            
+            const targetX = targetCache.x;
+            let inputIndex = 0;
+            let targetY = 0;
+            
+            Object.entries(targetNode.inputs).forEach(([key, value]) => {
+                if (key === paramKey && Array.isArray(value)) {
+                    targetY = targetCache.y + 30 * scale + (inputIndex * 20 * scale) + 10 * scale;
+                }
+                if (Array.isArray(value)) inputIndex++;
+            });
+
+            offscreenCtx.strokeStyle = '#a0a0ff';
+            offscreenCtx.lineWidth = 2 * scale;
+            offscreenCtx.lineCap = 'round';
+            offscreenCtx.beginPath();
+            offscreenCtx.moveTo(sourceX, sourceY);
+            
+            const cp1X = sourceX + 50 * scale;
+            const cp1Y = sourceY;
+            const cp2X = targetX - 50 * scale;
+            const cp2Y = targetY;
+            
+            offscreenCtx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, targetX, targetY);
+            offscreenCtx.stroke();
+        }
+
+        // ===================== 参数编辑功能 =====================
+		
+        function openParamPanel(nodeId) {
+            const node = comfyWorkflow[nodeId];
+            const panel = document.getElementById('paramPanel');
+            const panelTitle = document.getElementById('panelTitle');
+            const paramForm = document.getElementById('paramForm');
+            
+            panelTitle.textContent = `${node.class_type} (ID: ${nodeId}) - 参数编辑`;
+            paramForm.innerHTML = '';
+            
+           
+			Object.entries(node.inputs).forEach(([paramKey, paramValue]) => {
+					if (Array.isArray(paramValue)) return;
+					
+					const paramGroup = document.createElement('div');
+					paramGroup.className = 'param-group';
+					
+					const label = document.createElement('label');
+					label.textContent = paramKey;
+					label.style.float = "left";
+					paramGroup.appendChild(label);
+					
+					// 创建配置按钮
+					const button = document.createElement("button");
+					button.textContent = "配置";
+					button.className = "btn btn-primary";
+					button.style.float = "right";
+					button.style.marginBottom = "3px";
+					paramGroup.appendChild(button);
+					
+					const clearDiv = document.createElement('div');
+					clearDiv.style.clear = "both";
+					paramGroup.appendChild(clearDiv);
+					
+					const textarea = document.createElement('textarea');
+					textarea.value = String(paramValue);
+					textarea.dataset.param = paramKey;
+					paramGroup.appendChild(textarea);
+					
+					paramForm.appendChild(paramGroup);
+			
+					// ========== 配置按钮点击事件（修改定位逻辑） ==========
+					button.addEventListener('click', (e) => {
+					    e.stopPropagation(); // 阻止事件冒泡
+					    const paramPanel = document.getElementById('paramPanel');
+					    const paramPanelRect = paramPanel.getBoundingClientRect();
+					    const btnRect = button.getBoundingClientRect();
+						const panelScrollTop = paramPanel.scrollTop; // 关键：面板垂直滚动距离
+					    
+					    // 计算按钮在paramPanel内的垂直偏移（仅调整top，left固定在paramPanel左侧）
+					
+						
+						
+					    const topOffset = btnRect.top - paramPanelRect.top + (button.offsetHeight / 2)+panelScrollTop;
+					    // 下拉框垂直对齐按钮，水平固定在paramPanel左侧
+					    configDropdown.style.top = `${topOffset}px`;
+					    configDropdown.style.left = `-${configDropdown.offsetWidth + 10}px`; // 左侧10px间距
+					    configDropdown.style.transform = 'translateY(-50%)'; // 垂直居中对齐按钮
+					    configDropdown.classList.add('show');
+					    
+					    // 关联当前textarea到下拉列表（自定义属性）
+					    configDropdown.dataset.targetTextarea = textarea.id || `textarea_${paramKey}_${nodeId}`;
+					    // 给textarea设置唯一ID（如果没有）
+					    if (!textarea.id) {
+					        textarea.id = `textarea_${paramKey}_${nodeId}`;
+					    }
+					});
+				});
+            
+            panel.classList.add('show');
+			// ========== 新增：下拉列表选项点击事件 ==========
+			    const dropdownItems = configDropdown.querySelectorAll('.config-dropdown-item');
+			    dropdownItems.forEach(item => {
+			        item.addEventListener('click', () => {
+			            const targetId = configDropdown.dataset.targetTextarea;
+			            const targetTextarea = document.getElementById(targetId);
+			            if (targetTextarea) {
+			                // 将选中的内容填入textarea
+			                targetTextarea.value = item.dataset.value;
+			                // 关闭下拉列表
+			                configDropdown.classList.remove('show');
+			            }
+			        });
+			    });
+			
+			    // ========== 新增：点击其他区域关闭下拉列表 ==========
+			    document.addEventListener('click', (e) => {
+			        if (!configDropdown.contains(e.target) && !e.target.classList.contains('btn-primary') && e.target.textContent !== '配置') {
+			            configDropdown.classList.remove('show');
+			        }
+			    });
+			
+			    // ========== 新增：下拉列表内部点击阻止冒泡 ==========
+			    configDropdown.addEventListener('click', (e) => {
+			        e.stopPropagation();
+			    });
+        }
+
+        function saveParamChanges() {
+            if (!selectedNodeId) return;
+            
+            const node = comfyWorkflow[selectedNodeId];
+            const paramInputs = document.querySelectorAll('#paramForm [data-param]');
+            
+            paramInputs.forEach(input => {
+                const paramKey = input.dataset.param;
+				//todo 
+                node.inputs[paramKey] = convertToPrimitiveType(input.value);
+            });
+            
+            drawCanvas();
+            closeParamPanel();
+            showToast('参数修改已保存', 'success');
+			
+			main.updateData(comfyWorkflow)
+        }
+		function convertToPrimitiveType(inputStr) {
+		     // 步骤1：去除首尾空格，空字符串直接返回
+			const trimmedStr = inputStr.trim();
+			if (trimmedStr === "") return trimmedStr;
+
+			// 步骤2：判断并转换布尔类型字符串
+			if (trimmedStr.toLowerCase() === "true") {
+				return true;
+			} else if (trimmedStr.toLowerCase() === "false" ) {
+				// 可选：兼容大小写，如"True"/"FALSE"，取消注释即可
+				// } else if (trimmedStr.toLowerCase() === "false") {
+				return false;
+			}
+
+			// 步骤3：判断并转换数字类型字符串
+			// 使用Number转换后，通过isNaN判断是否为有效数字（排除"123a"这类非纯数字）
+			const numValue = Number(trimmedStr);
+			if (!isNaN(numValue)) {
+				return numValue;
+			}
+
+			// 步骤4：非数字/布尔字符串，返回原字符串
+			return trimmedStr;
+		}
+        // ===================== ID定位功能 =====================
+        function bindIdLocatorEvents() {
+            const nodeIdInput = document.getElementById('nodeIdInput');
+            const locateBtn = document.getElementById('locateBtn');
+            
+            nodeIdInput.addEventListener('input', () => {
+                const hasData = Object.keys(comfyWorkflow).length > 0;
+                const hasInput = nodeIdInput.value.trim() !== '';
+                locateBtn.disabled = !hasData || !hasInput;
+            });
+            
+            locateBtn.addEventListener('click', () => {
+                locateNodeById(nodeIdInput.value.trim());
+            });
+            
+            nodeIdInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !locateBtn.disabled) {
+                    locateNodeById(nodeIdInput.value.trim());
+                }
+            });
+        }
+
+        function locateNodeById(nodeId) {
+            if (!comfyWorkflow[nodeId]) {
+                showToast(`未找到ID为 "${nodeId}" 的节点`, 'error');
+                highlightedNodeId = null;
+                drawCanvas();
+                return;
+            }
+            
+            bringNodeToFront(nodeId);
+            const nodePos = NODE_POS_CACHE.get(nodeId);
+            if (!nodePos) {
+                showToast('节点位置信息未加载，请稍候', 'error');
+                return;
+            }
+            
+            const centerX = canvasWidth / 2 - nodePos.width / 2;
+            const centerY = canvasHeight / 2 - nodePos.height / 2;
+            const targetOffsetX = centerX - nodePos.x;
+            const targetOffsetY = centerY - nodePos.y;
+            
+            const animateMove = () => {
+                const dx = (targetOffsetX - offsetX) * 0.1;
+                const dy = (targetOffsetY - offsetY) * 0.1;
+                
+                if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) {
+                    offsetX = targetOffsetX;
+                    offsetY = targetOffsetY;
+                    drawCanvas();
+                    return;
+                }
+                
+                offsetX += dx;
+                offsetY += dy;
+                drawCanvas();
+                requestAnimationFrame(animateMove);
+            };
+            
+            highlightedNodeId = nodeId;
+            animateMove();
+            selectedNodeId = nodeId;
+            openParamPanel(nodeId);
+            showToast(`已定位到节点 ID: ${nodeId}`, 'success');
+            
+            setTimeout(() => {
+                highlightedNodeId = null;
+                drawCanvas();
+            }, 3000);
+        }
+
+        // ===================== 交互功能 =====================
+        function bindEvents() {
+			
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = (e.clientX - rect.left) / dpr;
+                const clickY = (e.clientY - rect.top) / dpr;
+                
+                const clickedNode = getTopmostNodeAtPosition(clickX, clickY);
+                if (clickedNode) {
+                    selectedNodeId = clickedNode.id;
+                    bringNodeToFront(clickedNode.id);
+                    isDraggingNode = true;
+                    dragNodeStartX = clickX - NODE_POS_CACHE.get(clickedNode.id).x;
+                    dragNodeStartY = clickY - NODE_POS_CACHE.get(clickedNode.id).y;
+                    openParamPanel(clickedNode.id);
+                    highlightedNodeId = null;
+                } else {
+                    selectedNodeId = null;
+                    isDraggingCanvas = true;
+                    dragStartX = clickX - offsetX;
+                    dragStartY = clickY - offsetY;
+                    closeParamPanel();
+                    highlightedNodeId = null;
+                }
+                drawCanvas();
+            });
+
+            let moveTimer = null;
+            canvas.addEventListener('mousemove', (e) => {
+                if (moveTimer) clearTimeout(moveTimer);
+                moveTimer = setTimeout(() => {
+                    if (!isDraggingCanvas && !isDraggingNode) return;
+                    
+                    const rect = canvas.getBoundingClientRect();
+                    const moveX = (e.clientX - rect.left) / dpr;
+                    const moveY = (e.clientY - rect.top) / dpr;
+                    
+                    if (isDraggingCanvas) {
+                        offsetX = moveX - dragStartX;
+                        offsetY = moveY - dragStartY;
+                        drawCanvas();
+                    } else if (isDraggingNode && selectedNodeId) {
+                        const node = comfyWorkflow[selectedNodeId];
+                        const cache = NODE_POS_CACHE.get(selectedNodeId);
+                        node.pos.x = (moveX - dragNodeStartX - offsetX) / scale;
+                        node.pos.y = (moveY - dragNodeStartY - offsetY) / scale;
+                        drawCanvas();
+                    }
+                }, 16);
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isDraggingCanvas = false;
+                isDraggingNode = false;
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                isDraggingCanvas = false;
+                isDraggingNode = false;
+            });
+
+            document.getElementById('zoomInBtn').addEventListener('click', () => {
+                scale = Math.min(scale + 0.1, 2.0);
+                drawCanvas();
+            });
+
+            document.getElementById('zoomOutBtn').addEventListener('click', () => {
+                scale = Math.max(scale - 0.1, 0.5);
+                drawCanvas();
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                resetWorkflow();
+                scale = 1.0;
+                offsetX = 0;
+                offsetY = 0;
+                selectedNodeId = null;
+                highlightedNodeId = null;
+                nodeZIndex.clear();
+                currentMaxZIndex = 0;
+                closeParamPanel();
+                document.getElementById('nodeIdInput').value = '';
+                drawCanvas();
+                updateUIState();
+                showToast('画布已重置为初始状态', 'success');
+            });
+
+            document.getElementById('cancelParam').addEventListener('click', closeParamPanel);
+            document.getElementById('saveParam').addEventListener('click', saveParamChanges);
+			
+			
+        }
+
+        function getTopmostNodeAtPosition(x, y) {
+            if (NODE_POS_CACHE.size === 0) return null;
+            
+            let topmostNode = null;
+            let highestZIndex = -1;
+            
+            for (const [nodeId, pos] of NODE_POS_CACHE.entries()) {
+                if (x >= pos.x && x <= pos.x + pos.width && y >= pos.y && y <= pos.y + pos.height) {
+                    const nodeZ = pos.zIndex || 0;
+                    if (nodeZ > highestZIndex) {
+                        highestZIndex = nodeZ;
+                        topmostNode = { id: nodeId, node: comfyWorkflow[nodeId] };
+                    }
+                }
+            }
+            
+            return topmostNode;
+        }
+
+        function bringNodeToFront(nodeId) {
+            currentMaxZIndex++;
+            nodeZIndex.set(nodeId, currentMaxZIndex);
+        }
+
+        // ===================== 导入功能 =====================
+        function bindImportEvents() {
+            document.getElementById('importBtn').addEventListener('click', () => {
+                document.getElementById('importModal').classList.add('show');
+                document.getElementById('jsonTextarea').value = '';
+                document.getElementById('jsonFile').value = '';
+            });
+
+            document.getElementById('closeModal').addEventListener('click', () => {
+                document.getElementById('importModal').classList.remove('show');
+            });
+
+            document.querySelectorAll('.import-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    importType = option.dataset.target;
+                    document.querySelectorAll('.import-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(`${importType}Content`).classList.add('active');
+                });
+            });
+
+            document.getElementById('confirmImport').addEventListener('click', importWorkflow);
+            document.getElementById('jsonFile').addEventListener('change', handleFileSelect);
+
+            document.getElementById('importModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('importModal')) {
+                    document.getElementById('importModal').classList.remove('show');
+                }
+            });
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.json')) {
+                showToast('请选择有效的JSON文件', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const jsonData = JSON.parse(event.target.result);
+                    document.getElementById('jsonTextarea').value = JSON.stringify(jsonData, null, 2);
+                    importType = 'paste';
+                    document.querySelectorAll('.import-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById('pasteContent').classList.add('active');
+                    showToast('文件已读取，请确认导入', 'success');
+                } catch (err) {
+                    showToast('JSON文件解析失败：' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+		
+		function initWorkflow(){
+			if(operateType == 1 && currentApiInfo){
+				var workflow = JSON.parse(JSON.parse(currentApiInfo).api) 
+				try {
+				    let jsonData=workflow;
+				    
+				    
+				    comfyWorkflow = addNodePositions(jsonData);
+				    nodeZIndex.clear();
+				    currentMaxZIndex = 0;
+				    Object.keys(comfyWorkflow).forEach(nodeId => {
+				        currentMaxZIndex++;
+				        nodeZIndex.set(nodeId, currentMaxZIndex);
+				    });
+				    
+				    scale = 1.0;
+				    offsetX = 0;
+				    offsetY = 0;
+				    selectedNodeId = null;
+				    highlightedNodeId = null;
+				    closeParamPanel();
+				    
+				    drawCanvas();
+				    updateUIState();
+				    document.getElementById('importModal').classList.remove('show');
+				    showToast('API JSON导入成功', 'success');
+				    main.updateStatus(workflow)
+				} catch (err) {
+				    showToast('导入失败：' + err.message, 'error');
+				}
+			}
+		}
+        function importWorkflow() {
+            try {
+                let jsonData;
+                if (importType === 'paste') {
+                    const text = document.getElementById('jsonTextarea').value.trim();
+                    if (!text) {
+                        showToast('请输入有效的JSON内容', 'error');
+                        return;
+                    }
+                    jsonData = JSON.parse(text);
+                } else {
+                    showToast('请先选择JSON文件', 'error');
+                    return;
+                }
+                
+                if (typeof jsonData !== 'object' || jsonData === null) {
+                    showToast('无效的ComfyUI JSON格式', 'error');
+                    return;
+                }
+                
+                comfyWorkflow = addNodePositions(jsonData);
+                nodeZIndex.clear();
+                currentMaxZIndex = 0;
+                Object.keys(comfyWorkflow).forEach(nodeId => {
+                    currentMaxZIndex++;
+                    nodeZIndex.set(nodeId, currentMaxZIndex);
+                });
+                main.updateData(comfyWorkflow)
+                scale = 1.0;
+                offsetX = 0;
+                offsetY = 0;
+                selectedNodeId = null;
+                highlightedNodeId = null;
+                closeParamPanel();
+                
+                drawCanvas();
+                updateUIState();
+                document.getElementById('importModal').classList.remove('show');
+                showToast('API JSON导入成功', 'success');
+                // main.updateStatus()
+            } catch (err) {
+                showToast('导入失败：' + err.message, 'error');
+            }
+        }
+
+        // ===================== 新增：初始化蒙版事件绑定 =====================
+        function bindInitModalEvents() {
+            const initModal = document.getElementById('initModal');
+            // const closeInitModal = document.getElementById('closeInitModal');
+            const confirmInit = document.getElementById('confirmInit');
+			
+			
+            const initName = document.getElementById('initName');
+			const initSource = document.getElementById('initSource');
+			
+			const workflowId = document.getElementById('workflowId');
+			
+            const initOutputNo = document.getElementById('initOutputNo');
+            const initCate = document.getElementById('initCate');
+            const initDefault = document.getElementById('initDefault');
+			
+            // 确认配置
+            confirmInit.addEventListener('click', () => {
+                // 表单验证
+                if (!initName.value.trim()) {
+                    showToast('请输入配置名称', 'error');
+                    initName.focus();
+                    return;
+                }
+				// 表单验证
+				if (!initSource.value.trim() || initSource.value ==-1) {
+				    showToast('请输入API来源', 'error');
+				    initSource.focus();
+				    return;
+				}
+				if ( initSource.value == 1 && !workflowId.value.trim()) {
+				    showToast('请输入工作流ID', 'error');
+				    workflowId.focus();
+				    return;
+				}
+				
+				if (isNaN(initOutputNo.value) || !initOutputNo.value) {
+				    showToast('输出编号为数字', 'error');
+				    initOutputNo.focus();
+				    return;
+				}
+                if (!initCate.value ||initCate.value==-1) {
+                    showToast('请选择分类', 'error');
+                    initCate.focus();
+                    return;
+                }
+				
+
+                // 存储初始化配置数据
+                initConfig = {
+                    name: initName.value.trim(),
+                    outputNo: parseInt(initOutputNo.value),
+                    cate: initCate.value,
+                    isDefault: initDefault.value === '1'
+                };
+
+                // 隐藏蒙版
+                initModal.style.display = 'none';
+                showToast(`初始化配置成功：${initConfig.name}`, 'success');
+                // 可在此处添加配置后续处理逻辑
+                console.log('初始化配置数据：', initConfig);
+            });
+
+            // 取消配置
+            // closeInitModal.addEventListener('click', () => {
+            //     initModal.style.display = 'none';
+            //     showToast('已取消初始化配置', 'info');
+            // });
+
+            // 点击蒙版背景关闭
+            // initModal.addEventListener('click', (e) => {
+            //     if (e.target === initModal) {
+            //         initModal.style.display = 'none';
+            //         showToast('已取消初始化配置', 'info');
+            //     }
+            // });
+
+            // 按回车确认
+            document.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && initModal.style.display !== 'none') {
+                    confirmInit.click();
+                }
+            });
+        }
+
+        // ===================== 辅助功能 =====================
+        function addNodePositions(workflow) {
+            const newWorkflow = JSON.parse(JSON.stringify(workflow));
+            const nodeIds = Object.keys(newWorkflow);
+            const startX = 100;
+            const startY = 100;
+            const colWidth = 280;
+            const rowHeight = 120;
+            let colIndex = 0;
+            let rowIndex = 0;
+            
+            nodeIds.forEach((nodeId, index) => {
+                if (!newWorkflow[nodeId].pos) {
+                    newWorkflow[nodeId].pos = {
+                        x: startX + (colIndex * colWidth),
+                        y: startY + (rowIndex * rowHeight)
+                    };
+                }
+                
+                rowIndex++;
+                if (rowIndex >= 5) {
+                    rowIndex = 0;
+                    colIndex++;
+                }
+            });
+            
+            return newWorkflow;
+        }
+
+        function resetWorkflow() {
+            comfyWorkflow = {};
+        }
+
+        function closeParamPanel() {
+            document.getElementById('paramPanel').classList.remove('show');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.style.display = 'block';
+            
+            clearTimeout(toast.timer);
+            toast.timer = setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function drawTextWithWrap(ctx, text, x, y, maxWidth, fontSize) {
+            const words = text.split(' ');
+            let line = '';
+            
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const testWidth = ctx.measureText(testLine).width;
+                
+                if (testWidth > maxWidth && n > 0) {
+                    ctx.fillText(line, x, y);
+                    line = words[n] + ' ';
+                    y += fontSize * 1.2;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, y);
+        }
+
+        function getTextLines(ctx, text, maxWidth, fontSize) {
+            const words = text.split('');
+            let line = '';
+            const lines = [];
+            
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n];
+                const testWidth = ctx.measureText(testLine).width;
+                
+                if (testWidth > maxWidth && n > 0) {
+                    lines.push(line);
+                    line = words[n];
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line);
+            return lines;
+        }
+
+        function getNodeHeight(node) {
+            const baseHeight = 30;
+            const padding = 10;
+            let paramHeight = 0;
+            
+            Object.entries(node.inputs).forEach(([key, value]) => {
+                if (Array.isArray(value)) return;
+                
+                const valueStr = String(value);
+                ctx.font = `12px sans-serif`;
+                const valueWidth = 240 - 40;
+                const lines = getTextLines(ctx, valueStr, valueWidth, 12);
+                paramHeight += 20 + (lines.length - 1) * 16;
+            });
+            
+            return baseHeight + paramHeight + padding;
+        }
+
+        function updateUIState() {
+            const hasData = Object.keys(comfyWorkflow).length > 0;
+            
+            document.getElementById('emptyState').style.display = hasData ? 'none' : 'block';
+            document.getElementById('resetBtn').disabled = !hasData;
+            document.getElementById('zoomInBtn').disabled = !hasData;
+            document.getElementById('zoomOutBtn').disabled = !hasData;
+            
+            const locateBtn = document.getElementById('locateBtn');
+            const nodeIdInput = document.getElementById('nodeIdInput');
+            locateBtn.disabled = !hasData || nodeIdInput.value.trim() === '';
+        }
+		
+		if(operateType == 1 && currentApiInfo){
+			initWorkflow()
+		}
+		function saveApi(){
+			main.saveApi()
+		}
+		
+    </script>
+	
+</body>
+</html>

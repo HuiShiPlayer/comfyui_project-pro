@@ -1,0 +1,501 @@
+<link rel="stylesheet" href="css/homeone.css" />
+<style>
+	.addButton {
+		position: relative;
+	}
+
+	.t-r-button {
+		position: absolute;
+		top: 15px;
+		right: 20px;
+		z-index: 99999;
+	}
+</style>
+<style>
+	/* 基础样式重置 */
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
+	body {
+		background-color: #f9fafb;
+		color: #1e293b;
+		line-height: 1.5;
+	}
+
+	.container {
+		width: 100%;
+		/* max-width: 1200px; */
+		margin: 0 auto;
+		padding: 0 16px;
+	}
+
+	/* 头部样式 */
+	header {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		background-color: white;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+
+	.header-content {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 16px 0;
+	}
+
+	.site-title {
+		font-size: clamp(1.5rem, 3vw, 2.5rem);
+		font-weight: bold;
+		color: #3b82f6;
+		display: flex;
+		align-items: center;
+	}
+
+	.site-title span {
+		margin-right: 8px;
+	}
+
+	.header-hint {
+		display: none;
+		color: #64748b;
+	}
+
+	@media (min-width: 768px) {
+		.header-hint {
+			display: block;
+		}
+	}
+
+	/* 主内容区样式 */
+	main {
+		padding: 32px 0;
+	}
+
+	/* 媒体网格布局 */
+	.media-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 24px;
+	}
+
+	/* 媒体卡片样式 */
+	.media-card {
+		background-color: white;
+		border-radius: 8px;
+		overflow: hidden;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		transition: all 0.3s ease;
+	}
+
+	.media-card:hover {
+		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+		transform: translateY(-4px);
+	}
+
+	/* 媒体内容样式 - 固定宽度，高度自适应 */
+	.media-content {
+		width: 100%;
+		position: relative;
+	}
+
+	.media-image {
+		width: 100%;
+		height: auto;
+		display: block;
+		object-fit: cover;
+	}
+
+	.media-video-container {
+		width: 100%;
+		position: relative;
+		background-color: #f1f5f9;
+	}
+
+	.media-video {
+		width: 100%;
+		height: 100%;
+		display: block;
+		object-fit: cover;
+	}
+
+	.video-play-icon {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		color: #3b82f6;
+		font-size: 48px;
+		opacity: 0.7;
+		pointer-events: none;
+	}
+
+	/* 媒体信息区域 */
+	.media-info {
+		padding: 16px;
+	}
+
+	.media-title {
+		font-weight: 600;
+		font-size: 18px;
+		margin-bottom: 12px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.media-actions {
+		display: flex;
+		gap: 8px;
+	}
+
+	/* 按钮样式 */
+	.btn {
+		padding: 8px 16px;
+		border-radius: 6px;
+		font-weight: 500;
+		font-size: 14px;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex: 1;
+		border: none;
+	}
+
+	.btn i {
+		margin-right: 6px;
+	}
+
+	.btn-primary {
+		background-color: #3b82f6;
+		color: white;
+	}
+
+	.btn-primary:hover {
+		background-color: #2563eb;
+		box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+	}
+
+	.btn-primary:active {
+		transform: scale(0.95);
+	}
+
+	.btn-secondary {
+		background-color: white;
+		color: #3b82f6;
+		border: 1px solid #3b82f6;
+	}
+
+	.btn-secondary:hover {
+		background-color: #eff6ff;
+		box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+	}
+
+	.btn-secondary:active {
+		transform: scale(0.95);
+	}
+
+	/* 加载指示器 */
+	.loading-indicator {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 32px;
+	}
+
+	.spinner {
+		width: 40px;
+		height: 40px;
+		border: 3px solid transparent;
+		border-top-color: #3b82f6;
+		border-bottom-color: #3b82f6;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	.loading-text {
+		margin-left: 12px;
+		color: #64748b;
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	
+
+	/* 页脚样式 */
+	footer {
+		background-color: #1e293b;
+		color: white;
+		padding: 32px 0;
+		margin-top: 48px;
+	}
+
+	.footer-content {
+		text-align: center;
+	}
+
+	/* 下载通知 */
+	.notification {
+		position: fixed;
+		bottom: 16px;
+		right: 16px;
+		background-color: #3b82f6;
+		color: white;
+		padding: 10px 16px;
+		border-radius: 6px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		z-index: 1000;
+		transform: translateY(40px);
+		opacity: 0;
+		transition: all 0.3s ease;
+	}
+
+	/* 辅助类 */
+	.hidden {
+		display: none !important;
+	}
+
+	.content-auto {
+		content-visibility: auto;
+	}
+
+	/* 动画类 */
+	.fade-in {
+		animation: fadeIn 0.5s ease forwards;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	 /* 自定义多选框 */
+	     .custom-checkbox {
+	         position: absolute;
+	         top: 10px;
+	         left: 10px;
+	         width: 24px;
+	         height: 24px;
+	         border-radius: 6px;
+	         border: 2px solid #ddd;
+	         background: rgba(255,255,255,.8);
+	         cursor: pointer;
+	         transition: all .3s;
+	         z-index: 10;
+	     }
+	     .custom-checkbox.checked {
+	        background: #555; /* 深灰色选中背景 */
+	        border-color: #555;
+	     }
+	     .custom-checkbox::after {
+	         content: "";
+	         position: absolute;
+	         display: none;
+	         left: 8px;
+	         top: 4px;
+	         width: 6px;
+	         height: 12px;
+	         border: solid #fff;
+	         border-width: 0 2px 2px 0;
+	         transform: rotate(45deg);
+	     }
+	     .custom-checkbox.checked::after { display: block; }
+		 .topBar{
+			 position: fixed;
+			 top: 10px; /* 距离顶部10px */
+			 right: 30px; /* 距离右边10px */
+			 z-index: 1000; /* 确保按钮在其他元素之上 */
+		 }
+		 .clickable {
+		     cursor: pointer;
+		 }
+</style>
+<script>
+	$(function() {
+		$('.contentHolder').perfectScrollbar();
+	});
+	function toggleSelect(el) {
+		el.classList.toggle('checked');
+	}
+</script>
+<div class="contentHolder ng-scope ps-container" style="padding-top: 15px;" id="main">
+	<div class="container-fluid" >
+	
+	<!-- 主内容区 -->
+	<main class="container" v-cloak>
+		<div class="topBar">
+			<button type="button" class="custom-btn modalhide custom-btn-success" id="" @click="fillList">全选</button>
+			<button type="button" class="custom-btn modalhide custom-btn-warning" id="" @click="clearList">清空选择</button>
+			<button type="button" class="custom-btn modalhide custom-btn-danger" id=""data-toggle="modal" data-target="#deleteItems" >批量删除</button>
+		</div>
+		
+		
+		<!-- 媒体网格 -->
+		<div id="media-container" class="media-grid">
+			<div  v-for="(item,index) in list" class="media-card content-auto"
+				style="opacity: 1; transform: translateY(0px); transition: opacity 0.5s, transform 0.5s;">
+				<div :id="'imageBox'+item.id" class="custom-checkbox" style="z-index: 99999999;" onclick="toggleSelect(this)" @click="toggleSelect(item)"></div>
+				<div class="media-content media-video-container" v-if="item.type == 1">
+					<video loading="lazy" alt="生成图片"  class="media-video" muted  controls :src="item.url+'?timestamp='+currentTime" @click="previewImage(item.url)">
+						<source :src="item.url+'?timestamp='+currentTime"  type="video/mp4">
+						<source :src="item.url+'?timestamp='+currentTime" type="video/ogg">
+						您的浏览器不支持视频播放
+					</video>
+					<!-- <div class="video-play-icon">▶</div> -->
+				</div>
+				<div class="media-content" v-else>
+					<img loading="lazy" alt="生成图片" :src="item.url+'?timestamp='+currentTime" @click="previewImage(item.url)" :alt="item.prompt" class="media-image" loading="lazy">
+				</div>
+				<div class="media-info">
+					<h3 class="media-title">{{item.prompt}}</h3>
+					<div class="media-actions">
+						<button data-toggle="modal" data-target="#showData" class="view-prompt btn btn-secondary" data-id="1" data-type="video" @click="showData(item)">							
+							<span>💬</span> 查看
+						</button>
+						<button class="download-media btn btn-primary" @click="download(item)">
+							<span>↓</span> 下载
+						</button>
+						<button data-toggle="modal" data-target="#deleteItem" class="btn btn-secondary" @click="showData(item)">
+							删除
+						</button>
+						
+					</div>
+				</div>
+			</div>
+
+			
+
+		</div>
+
+		<!-- 加载指示器 -->
+		<div id="loading-indicator" class="loading-indicator hidden">
+			<div class="spinner"></div>
+			<span class="loading-text">加载中...</span>
+		</div>
+		
+		<!--导入数据模板-->
+		<div class="modal fade" id="showData" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog" style="width: 800px">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title" id="myModalLabel">提示词</h4>
+					</div>
+					<div class="modal-body">
+						
+							<div class="form-group">
+								<div class="col-sm-12" style=" display: inline-block;">
+										{{item.prompt}}								
+								</div>
+								
+							</div>
+							<div style="clear: both;"></div>
+							<div v-if="item.reference != null && item.reference != 'null'" style=" padding: 5px;margin-top: 10px;">
+								<div v-for="(value, key) in item.reference" :key="key" style="padding: 10px;float: left;" @click="previewImage(value)" class="clickable">
+									
+									<img  v-if="key != 'referenceVideo'" :src="value+'?timestamp='+currentTime"  width="100px" style="border-radius: 15px;box-shadow: 0 4px 8px rgba(0,0,0,0.2)">
+								
+									<video  v-else muted  controls width="100px" :src="value+'?timestamp='+currentTime" style="border-radius: 15px;box-shadow: 0 4px 8px rgba(0,0,0,0.2)" >
+										<source :src="value+'?timestamp='+currentTime" type="video/mp4">
+										<source :src="value+'?timestamp='+currentTime" type="video/ogg">
+										您的浏览器不支持视频播放
+									</video>
+									
+								</div>
+								<div style="clear: both;"></div>
+							</div>
+							
+							
+						
+					</div>
+					<div class="modal-footer">						
+						<button type="button" class="custom-btn modalhide custom-btn-primary" id="" data-dismiss="modal" >确定</button>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+		<div class="modal fade" id="deleteItems" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-center modal-300">
+				<div class="modal-content text-center">
+					<div class="modal-body modal-animation ">
+						<div class="ma-icon ma-warning pulseWarning">
+							<span class="ma-body pulseWarningIns"></span>
+							<span class="ma-dot pulseWarningIns"></span>
+						</div>
+						<h3 class="title_warning">是否批量删除？</h3>
+						<p class="m-t-md">
+							<span class="text_warning"></span>
+						</p>
+					</div>
+					<div class="modal-footer text-center border0">
+						<button type="button" class="custom-btn custom-btn-danger " data-dismiss="modal" @click="deleteItems(1)" >彻底删除
+						</button>
+						<button type="button" class="custom-btn custom-btn-default " data-dismiss="modal" @click="deleteItems(0)" >确认
+						</button>
+						<button type="button" class="custom-btn custom-btn-primary " data-dismiss="modal">关闭
+						</button>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+		<div class="modal fade" id="deleteItem" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-center modal-300">
+				<div class="modal-content text-center">
+					<div class="modal-body modal-animation ">
+						<div class="ma-icon ma-warning pulseWarning">
+							<span class="ma-body pulseWarningIns"></span>
+							<span class="ma-dot pulseWarningIns"></span>
+						</div>
+						<h3 class="title_warning">是否删除？</h3>
+						<p class="m-t-md">
+							<span class="text_warning"></span>
+						</p>
+					</div>
+					<div class="modal-footer text-center border0">
+						<button type="button" class="custom-btn custom-btn-danger " data-dismiss="modal" @click="deleteItem(1)">彻底删除
+						</button>
+						<button type="button" class="custom-btn custom-btn-warning " data-dismiss="modal" @click="deleteItem(0)">删除记录
+						</button>
+						<button type="button" class="custom-btn custom-btn-primary " data-dismiss="modal">关闭
+						</button>
+						
+					</div>
+				</div>
+			</div>
+		
+		</div>
+	</main>
+	
+	</div>
+	<footer>
+		<div class="container">
+			<div class="footer-content">
+				<p><button type="button" class="custom-btn custom-btn-primary " id="" @click="showHome()">绘世玩家主页</button> | <button type="button" class="custom-btn custom-btn-default " id="" @click="addMore()">点击加载更多</button></p>
+			</div>
+		</div>
+	</footer>
+</div>
+<script src="./page/vue/main-vue.js"></script>

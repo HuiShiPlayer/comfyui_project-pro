@@ -1,0 +1,234 @@
+<!--浏览分类-->
+
+<script>
+	$(function() {
+		// 获取内容容器		
+		//suppressScrollX: true 为禁止横向滚动
+		$('.contentHolder').perfectScrollbar({
+			suppressScrollX: true
+		});
+	});
+</script>
+<style type="text/css">
+	.showtext {
+		width: 6em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+</style>
+<div class="contentHolder ng-scope ps-container" id="main">
+	<div class="container-fluid" v-cloak>
+
+		<!--面包屑导航-->
+		<div class="row">
+			<ol class="breadcrumb">
+				<li>当前位置</li>
+				<li>基础管理</li>
+				<li>API管理</li>
+			</ol>
+		</div>
+		<!--面包屑导航结束-->
+		<!--主题内容开始-->
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="list-box">
+					<div class="form-group" style="float: left;">
+						<div class="input-icon-right" style="float:left">
+							<input v-model="name" type="text" class="form-control" placeholder="名称查询"> <i
+								class="icon-search f18 text-666"></i>
+						</div>
+					</div>
+					<div class="form-group" style="float: left; margin-left: 10px;">
+						<select class="form-control" v-model="source">
+							<option value="-1">API来源</option>
+							<option value="0">Comfyui</option>
+							<option value="1">RunningHub</option>
+							<option value="2">云平台</option>
+
+						</select>
+					</div>
+					<div class="form-group" style="float: left; margin-left: 10px;">
+						<select class="form-control" v-model="classType">
+							<option value="-1">API分类</option>
+							<option value="0">文生图API</option>
+							<option value="4">单图生图API</option>
+							<option value="5">双图生图API</option>
+							<option value="6">三图生图API</option>
+							<option value="1">文生视频API</option>
+							<option value="2">图生视频API</option>
+							<option value="3">首尾帧|双图参考API</option>
+							<option value="10">三图参考API</option>
+							<option value="7">视频参考</option>
+							<option value="8">数字人|后期</option>
+							<option value="9">TTS</option>
+						</select>
+					</div>
+					<div style="float: left;margin-left: 10px;">
+						<button type="" class="custom-btn custom-btn-success" @click="select(1)">查询</button>
+					</div>
+
+					<div class="float-r">
+						<!-- <button type="" class="custom-btn custom-btn-primary" data-toggle="modal" data-target="#addData" @click="restform()">添加API</button> -->
+						<button type="" class="custom-btn custom-btn-warning" data-toggle="modal" data-target="#addData" @click="restform()">同步API</button>
+
+						<button type="" class="custom-btn custom-btn-primary" @click="addApi()">添加API</button>
+					</div>
+					<br />
+					<table class="dataTable row-border m-t-md">
+						<thead>
+							<tr>
+								<th width="10%">序号</th>
+								<th width="35%">名称</th>
+								<th width="5%">输出编号</th>
+								<th width="10%">来源</th>
+								<th width="10%">类型</th>
+								<th width="10%">是否默认</th>
+								<th width="20%"><i class="icon-set-line fw"></i>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(item,index) in list">
+								<td>{{index+1}}</td>
+								<td>
+									{{item.name}}
+								</td>
+								<td>
+									{{item.outputsNum}}
+								</td>
+								<td v-if="item.classType == 0">
+									comfyui
+								</td>
+								<td v-else-if="item.classType == 1">
+									RunningHub
+								</td>
+								<td v-else-if="item.classType == 2">
+									云平台
+								</td>
+								<td v-if="item.type==0">
+									文生图API
+								</td>
+								<td v-else-if="item.type == 4">
+									单图生图API
+								</td>
+								<td v-else-if="item.type == 5">
+									双图生图API
+								</td>
+								<td v-else-if="item.type == 6">
+									三图生图API
+								</td>
+								<td v-else-if="item.type == 1">
+									文生视频API
+								</td>
+
+								<td v-else-if="item.type == 2">
+									图生视频API
+								</td>
+								<td v-else-if="item.type == 3">
+									首尾帧|双图参考API
+								</td>
+								<td v-else-if="item.type == 10">
+									三图参考API
+								</td>
+								<td v-else-if="item.type == 7">
+									视频参考
+								</td>
+								<td v-else-if="item.type == 8">
+									数字人
+								</td>
+								<td v-else-if="item.type == 9">
+									TTS
+								</td>
+								<td v-else>
+									未分类
+								</td>
+								<td v-if="item.isDefault==0">
+									否
+								</td>
+								<td v-else>
+									是
+								</td>
+								<td>
+									<button v-if="item.isDefault==0" class="custom-btn custom-btn-success pd-md"
+										@click="updateDefault(item,1)">设为默认</button>
+									<button v-else class="custom-btn custom-btn-warning pd-md"
+										@click="updateDefault(item,0)">取消默认</button>
+									<button class="custom-btn custom-btn-info pd-md"
+										@click="updateApi(item)">修改API</button>
+									<button class="custom-btn custom-btn-danger pd-md" data-toggle="modal"
+										data-target="#deleteItem" @click="setItem(item)">删除API</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="M-box1" style="float: right; margin-top: 10px"></div>
+				</div>
+			</div>
+		</div>
+		<!--主题内容结束-->
+		<div class="modal fade" id="addData" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog" style="width: 800px">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title" style="color: red;" id="myModalLabel">**同步API**</h4>
+					</div>
+					<div class="modal-body">
+						<form class="form-horizontal m-t-lg" role="form" id="form1">
+							<div class="form-group">
+								<label class="col-sm-2 control-label">注意：</label>
+								<div class="col-sm-5">
+									<button class="custom-btn custom-btn-danger" >请按照B站 绘世玩家 视频操作</button>
+								</div>
+								
+							</div>	
+							<div class="form-group">
+								
+								<label class="col-sm-2 control-label">上传文件：</label>
+								<div class="col-sm-5">
+									<input type="file" @change="getData" class="form-control">
+								</div>
+							</div>	
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="custom-btn custom-btn-default " @click="synchronizeData()" data-dismiss="modal">确认
+						</button>
+						<button type="button" class="custom-btn custom-btn-primary " id="synchronizeDataFrame" data-dismiss="modal">关闭
+						</button>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+
+		<div class="modal fade" id="deleteItem" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog modal-center modal-300">
+				<div class="modal-content text-center">
+					<div class="modal-body modal-animation ">
+						<div class="ma-icon ma-warning pulseWarning">
+							<span class="ma-body pulseWarningIns"></span>
+							<span class="ma-dot pulseWarningIns"></span>
+						</div>
+						<h3 class="title_warning">是否删除？</h3>
+						<p class="m-t-md">
+							<span class="text_warning"></span>
+						</p>
+					</div>
+					<div class="modal-footer text-center border0">
+						<button type="button" class="custom-btn custom-btn-default " data-dismiss="modal"
+							@click="deleteItem()">确认
+						</button>
+						<button type="button" class="custom-btn custom-btn-primary " data-dismiss="modal">关闭
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<script src="./page/vue/api_vue.js"></script>

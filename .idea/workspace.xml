@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="9ae1130a-49d7-4781-b754-0f3868c01d69" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CompilerWorkspaceConfiguration">
+    <option name="MAKE_PROJECT_ON_SAVE" value="true" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin File" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="localRepository" value="D:\maven\repository" />
+        <option name="mavenHome" value="D:/maven3.5/apache-maven-3.5.2" />
+        <option name="userSettingsFile" value="D:\maven3.5\apache-maven-3.5.2\conf\settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="34hCohMb32vZtxONVqUG33ccvol" />
+  <component name="PropertiesComponent">
+    <property name="RequestMappingsPanelOrder0" value="0" />
+    <property name="RequestMappingsPanelOrder1" value="1" />
+    <property name="RequestMappingsPanelWidth0" value="75" />
+    <property name="RequestMappingsPanelWidth1" value="75" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../comfyui_story" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="reference.projectsettings.compiler.javacompiler" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\desk\comfyui_project\src\main\resources\static\web_comfyui_batch_operate" />
+      <recent name="D:\desk\comfyui_project\src\main\resources" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.zyz.vo" />
+      <recent name="com.zyz" />
+      <recent name="com.zyz.config" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\desk\comfyui_project\src\main\resources" />
+      <recent name="D:\desk\comfyui_project" />
+      <recent name="D:\desk\comfyui_project\src\main\resources\static" />
+      <recent name="D:\desk\comfyui_project\src\main\resources\static\web_comfyui_batch_operate" />
+      <recent name="D:\desk\comfyui_project\src\main\resources\static\web_comfyui_batch_operate\page\page\admin\js" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.App">
+    <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.zyz.App" />
+      <module name="comfyui" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.zyz.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GeneratorBack" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="templete.GeneratorBack" />
+      <module name="comfyui" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="templete.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ResourceLibraryController" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.zyz.controller.ResourceLibraryController" />
+      <module name="comfyui" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.zyz.controller.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.zyz.Test" />
+      <module name="comfyui" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.zyz.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UrlFileExtensionUtil" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.zyz.util.UrlFileExtensionUtil" />
+      <module name="comfyui" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.zyz.util.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="App" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="comfyui" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.zyz.App" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.ResourceLibraryController" />
+        <item itemvalue="Application.App" />
+        <item itemvalue="Application.GeneratorBack" />
+        <item itemvalue="Application.Test" />
+        <item itemvalue="Application.UrlFileExtensionUtil" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9ae1130a-49d7-4781-b754-0f3868c01d69" name="Default Changelist" comment="" />
+      <created>1761656592137</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1761656592137</updated>
+      <workItem from="1761656598128" duration="8058000" />
+      <workItem from="1761709358808" duration="8220000" />
+      <workItem from="1761787374721" duration="1255000" />
+      <workItem from="1761811070064" duration="4062000" />
+      <workItem from="1761829174736" duration="3703000" />
+      <workItem from="1761870684839" duration="5617000" />
+      <workItem from="1761906106620" duration="7366000" />
+      <workItem from="1761959857919" duration="6357000" />
+      <workItem from="1761994749664" duration="1390000" />
+      <workItem from="1762080687057" duration="6441000" />
+      <workItem from="1762133820054" duration="2823000" />
+      <workItem from="1762743455509" duration="26115000" />
+      <workItem from="1762840491709" duration="1300000" />
+      <workItem from="1762862285972" duration="6383000" />
+      <workItem from="1762916220074" duration="17811000" />
+      <workItem from="1765621814358" duration="152000" />
+      <workItem from="1765622084526" duration="3613000" />
+      <workItem from="1765626525363" duration="2749000" />
+      <workItem from="1766401975889" duration="7263000" />
+      <workItem from="1766451749715" duration="29179000" />
+      <workItem from="1766541224529" duration="5277000" />
+      <workItem from="1766623282050" duration="6693000" />
+      <workItem from="1766653227323" duration="4479000" />
+      <workItem from="1766714070191" duration="913000" />
+      <workItem from="1767089192106" duration="2102000" />
+      <workItem from="1767174633749" duration="2769000" />
+      <workItem from="1767246464974" duration="9453000" />
+      <workItem from="1767317590503" duration="29895000" />
+      <workItem from="1767401912978" duration="6395000" />
+      <workItem from="1767579618693" duration="2109000" />
+      <workItem from="1767620238573" duration="3230000" />
+      <workItem from="1767865804779" duration="155000" />
+      <workItem from="1767868644682" duration="19000" />
+      <workItem from="1767868936999" duration="214000" />
+      <workItem from="1767869168652" duration="1903000" />
+      <workItem from="1767871118865" duration="677000" />
+      <workItem from="1767885666464" duration="313000" />
+      <workItem from="1768110816351" duration="1412000" />
+      <workItem from="1768116544073" duration="354000" />
+      <workItem from="1768126993699" duration="2333000" />
+      <workItem from="1768834944968" duration="1324000" />
+      <workItem from="1769241336291" duration="1423000" />
+      <workItem from="1769323542605" duration="721000" />
+      <workItem from="1769423729182" duration="1618000" />
+      <workItem from="1769850701364" duration="3438000" />
+      <workItem from="1769879266843" duration="203000" />
+      <workItem from="1769920132773" duration="2845000" />
+      <workItem from="1769946639418" duration="1120000" />
+      <workItem from="1769997475145" duration="13515000" />
+      <workItem from="1770082883872" duration="992000" />
+      <workItem from="1770114594665" duration="624000" />
+      <workItem from="1770116838917" duration="989000" />
+      <workItem from="1770169985019" duration="59000" />
+      <workItem from="1770181082362" duration="49000" />
+      <workItem from="1770182659689" duration="3696000" />
+      <workItem from="1770354013226" duration="1499000" />
+      <workItem from="1770356692218" duration="11568000" />
+      <workItem from="1770458086351" duration="2131000" />
+      <workItem from="1770608404294" duration="647000" />
+      <workItem from="1772850253820" duration="5479000" />
+      <workItem from="1772868923074" duration="12088000" />
+      <workItem from="1772931933805" duration="8479000" />
+      <workItem from="1772975043075" duration="1509000" />
+      <workItem from="1773367138369" duration="3000" />
+      <workItem from="1773452709344" duration="5003000" />
+      <workItem from="1773473666706" duration="5172000" />
+      <workItem from="1773632179591" duration="10436000" />
+      <workItem from="1773747540717" duration="1955000" />
+      <workItem from="1775300719852" duration="8414000" />
+      <workItem from="1775363147814" duration="1514000" />
+      <workItem from="1775381140470" duration="16137000" />
+      <workItem from="1775441127514" duration="12475000" />
+      <workItem from="1775699973200" duration="4430000" />
+      <workItem from="1775919053141" duration="72000" />
+      <workItem from="1776417007682" duration="939000" />
+      <workItem from="1776423294458" duration="3345000" />
+      <workItem from="1777104302675" duration="1279000" />
+      <workItem from="1777121880404" duration="791000" />
+      <workItem from="1777259288763" duration="1248000" />
+      <workItem from="1781177085008" duration="10019000" />
+      <workItem from="1781501604976" duration="1373000" />
+      <workItem from="1781520908990" duration="3694000" />
+      <workItem from="1781570939737" duration="1191000" />
+      <workItem from="1781781629495" duration="1258000" />
+      <workItem from="1781950345587" duration="464000" />
+      <workItem from="1781950821086" duration="235000" />
+      <workItem from="1783056349339" duration="1808000" />
+      <workItem from="1783132467290" duration="614000" />
+      <workItem from="1783151683496" duration="603000" />
+      <workItem from="1783521730520" duration="635000" />
+      <workItem from="1783599519095" duration="609000" />
+      <workItem from="1783733906008" duration="637000" />
+      <workItem from="1783739195167" duration="604000" />
+      <workItem from="1784802366389" duration="624000" />
+      <workItem from="1784939756988" duration="1227000" />
+      <workItem from="1784971928976" duration="606000" />
+      <workItem from="1784973831591" duration="614000" />
+      <workItem from="1784983595684" duration="1727000" />
+      <workItem from="1784986459513" duration="1199000" />
+      <workItem from="1785036118814" duration="1012000" />
+      <workItem from="1785067720152" duration="1284000" />
+      <workItem from="1785202708436" duration="16000" />
+      <workItem from="1785202789513" duration="10922000" />
+      <workItem from="1785220337358" duration="2730000" />
+      <workItem from="1785227023639" duration="6148000" />
+      <workItem from="1785287935074" duration="8074000" />
+      <workItem from="1785331332091" duration="660000" />
+      <workItem from="1785382876896" duration="9184000" />
+      <workItem from="1785407167341" duration="3547000" />
+      <workItem from="1785413787052" duration="221000" />
+      <workItem from="1785464791506" duration="2603000" />
+      <workItem from="1785500478456" duration="628000" />
+      <workItem from="1785819393294" duration="2426000" />
+      <workItem from="1785894986263" duration="1866000" />
+      <workItem from="1786251551175" duration="23000" />
+      <workItem from="1786277294423" duration="608000" />
+      <workItem from="1786325216421" duration="244000" />
+      <workItem from="1786326702127" duration="2936000" />
+      <workItem from="1786422046742" duration="3165000" />
+      <workItem from="1786445196609" duration="13135000" />
+      <workItem from="1786490581173" duration="14748000" />
+      <workItem from="1786511532504" duration="3056000" />
+      <workItem from="1786516403505" duration="35000" />
+      <workItem from="1786523653372" duration="1565000" />
+      <workItem from="1786589905328" duration="5024000" />
+      <workItem from="1786616048753" duration="10839000" />
+      <workItem from="1786669378135" duration="24546000" />
+      <workItem from="1786843956307" duration="1440000" />
+      <workItem from="1786883858834" duration="633000" />
+      <workItem from="1786936113806" duration="8373000" />
+      <workItem from="1786975703234" duration="7213000" />
+      <workItem from="1787014611891" duration="6222000" />
+      <workItem from="1787038652581" duration="690000" />
+      <workItem from="1787138835303" duration="830000" />
+      <workItem from="1787194173531" duration="670000" />
+      <workItem from="1787660319579" duration="5511000" />
+      <workItem from="1787675059115" duration="23000" />
+      <workItem from="1788224487150" duration="535000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/zyz/controller/GenerateRecordsController.java</url>
+          <line>163</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/zyz/controller/FileUpAndDownloadController.java</url>
+          <line>236</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/zyz/controller/ResourceLibraryController.java</url>
+          <line>331</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/zyz/controller/ResourceLibraryController.java</url>
+          <line>186</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/comfyui$App.ic" NAME="App Coverage Results" MODIFIED="1775400586479" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+      <FILTER>com.zyz.*</FILTER>
+    </SUITE>
+  </component>
+</project>

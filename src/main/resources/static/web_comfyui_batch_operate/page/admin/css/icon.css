@@ -1,0 +1,26 @@
+/*del*/
+.efont li,
+.efont li:hover {
+    width: 11%;
+    height: auto;
+    color: #666;
+    text-align: center;
+    display: inline-block;
+    margin-right: -5px;
+    margin-top: -1px;
+    padding: 20px 0 20px 0;
+    box-sizing: border-box;
+    font-size: 12px;
+}
+.efont li:hover {
+    background: #ddd;
+    border-radius: 4px;
+}
+.efont li span{
+    font-size: 16px;
+    display: block;
+    margin-bottom: 10px;
+
+}
+/*del*/
+

@@ -1,0 +1,142 @@
+<!--浏览分类-->
+
+<script>
+	$(function() {
+		$('.contentHolder').perfectScrollbar();
+	});
+</script>
+<style type="text/css">
+	.showtext {
+		width: 6em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+</style>
+<div class="contentHolder ng-scope ps-container" id="main">
+	<div class="container-fluid" v-cloak>
+
+		<!--面包屑导航-->
+		<div class="row">
+			<ol class="breadcrumb">
+				<li>当前位置</li>
+				<li>系统管理</li>
+				<li>样例页面</li>
+			</ol>
+		</div>
+		<!--面包屑导航结束-->
+		<!--主题内容开始-->
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="list-box">
+					<div class="form-group" style="float: left;">
+						<div class="input-icon-right" style="float:left">
+							<input v-model="param" type="text" class="form-control" placeholder="查询"> <i class="icon-search f18 text-666"></i>
+						</div>
+					</div>
+					<div style="float: left;margin-left: 10px;">
+						<button type="" class="custom-btn custom-btn-success" @click="select(1)">查询</button>
+					</div>
+
+					<div class="float-r">
+						<button type="" class="custom-btn custom-btn-primary" data-toggle="modal" data-target="#addData" @click="restform()">添加</button>
+					</div>
+					<br />
+					<table class="dataTable row-border m-t-md">
+						<thead>
+							<tr>
+								<th>序号</th>
+								<th>名称</th>
+								<th>年龄</th>
+								<th>类型</th>
+								<th>创建时间</th>
+								<th><i class="icon-set-line fw"></i>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(item,index) in list">
+								<td>{{index+1}}</td>
+								<td>
+									{{item.name}}
+								</td>
+								<td>
+									{{item.age}}
+								</td>
+
+								<td v-if="item.type == 0">
+									学生
+								</td>
+
+								<td v-else-if="item.type == 1">
+									老师
+								</td>
+
+								<td>
+									{{item.createTime}}
+								</td>
+								<td>
+									<button class="custom-btn custom-btn-warning pd-md" data-toggle="modal" data-target="#addData" @click="setItem(item)">修改字典</button>
+									<button class="custom-btn custom-btn-danger pd-md" @click="deleteItem(item,index)">删除数据</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="M-box1" style="float: right; margin-top: 10px"></div>
+				</div>
+			</div>
+		</div>
+		<!--主题内容结束-->
+		<div class="modal fade" id="addData" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog" style="width: 800px">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title" id="myModalLabel" v-if="type == 0">添加数据</h4>
+						<h4 class="modal-title" id="myModalLabel" v-else>修改数据</h4>
+					</div>
+					<div class="modal-body">
+						<form class="form-horizontal m-t-lg" role="form" id="form1">
+
+							<div class="form-group">
+								<label class="col-sm-2 control-label"><span class="text-danger">*</span>名称：</label>
+								<div class="col-sm-5">
+									<input v-model="data.name" class="form-control">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label"><span class="text-danger">*</span>年龄：</label>
+								<div class="col-sm-5">
+									<input v-model="data.age" class="form-control">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label"><span class="text-danger">*</span>时间：</label>
+								<div class="col-sm-5">
+									<input type="datetime" v-model="data.createTime" class="form-control">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label"><span class="text-danger">*</span>时间：</label>
+								<div class="col-sm-5">
+									<select class="form-control" v-model="data.type">
+										<option value="0" selected="selected">老師</option>
+										<option value="1" selected="selected">学生</option>
+									</select>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="custom-btn  custom-btn-default" data-dismiss="modal" id="cancel">取消</button>
+						<button type="button" class="custom-btn modalhide custom-btn-primary" id="" @click="saveData()">确定</button>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+
+	</div>
+</div>
+<script src="./page/vue/templete_vue.js"></script>

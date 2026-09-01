@@ -1,0 +1,106 @@
+<!--浏览分类-->
+
+<script>
+	$(function() {
+		$('.contentHolder').perfectScrollbar();
+	});
+</script>
+<style type="text/css">
+	.showtext {
+		width: 6em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+</style>
+<div class="contentHolder ng-scope ps-container" id="main">
+	<div class="container-fluid" v-cloak>
+
+		<!--面包屑导航-->
+		<div class="row">
+			<ol class="breadcrumb">
+				<li>当前位置</li>
+				<li>历史记录</li>
+				<li>完成任务记录</li>
+			</ol>
+		</div>
+		<!--面包屑导航结束-->
+		<!--主题内容开始-->
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="list-box">
+					<div class="form-group" style="float: left;">
+						<div class="input-icon-right" style="float:left">
+							<input v-model="name" type="text" class="form-control" placeholder="查询"> <i class="icon-search f18 text-666"></i>
+						</div>
+					</div>
+					<div style="float: left;margin-left: 10px;">
+						<button type="" class="custom-btn custom-btn-success" @click="select(1)">查询</button>
+					</div>
+
+					
+					<br />
+					<table class="dataTable row-border m-t-md">
+						<thead>
+							<tr>
+								<th>序号</th>
+								<th>任务名称</th>
+								<th>任务类型</th>								
+								<th>任务ID</th>
+								<th><i class="icon-set-line fw"></i>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(item,index) in list">
+								<td>{{index+1}}</td>
+								<td>
+									{{item.taskName}}
+								</td>
+								<td v-if="item.type == 0">
+									图片生成
+								</td>
+								<td v-else>
+									视频生成
+								</td>
+								<td>
+									{{item.taskId}}
+								</td>
+								<td>
+									<button class="custom-btn custom-btn-danger pd-md"  data-toggle="modal" data-target="#deleteItem" @click="setItem(item,index)">删除数据</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="M-box1" style="float: right; margin-top: 10px"></div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="deleteItem" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-center modal-300">
+				<div class="modal-content text-center">
+					<div class="modal-body modal-animation ">
+						<div class="ma-icon ma-warning pulseWarning">
+							<span class="ma-body pulseWarningIns"></span>
+							<span class="ma-dot pulseWarningIns"></span>
+						</div>
+						<h3 class="title_warning">是否删除？</h3>
+						<p class="m-t-md">
+							<span class="text_warning"></span>
+						</p>
+					</div>
+					<div class="modal-footer text-center border0">
+						<button type="button" class="custom-btn custom-btn-default " data-dismiss="modal" @click="deleteItem()" >确认
+						</button>
+						<button type="button" class="custom-btn custom-btn-primary " data-dismiss="modal">关闭
+						</button>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+
+
+	</div>
+</div>
+<script src="./page/vue/task_c_vue.js"></script>

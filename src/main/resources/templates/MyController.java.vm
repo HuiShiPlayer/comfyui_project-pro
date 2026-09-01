@@ -1,0 +1,171 @@
+package ${package.Controller};
+import ${package.Entity}.${entity};
+import com.zyz.common.ResponseCode;
+import com.zyz.common.ServerResponse;
+import com.zyz.util.IdGen;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.Page;
+import ${package.Service}.${table.serviceName};
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import com.zyz.common.MyConst;
+
+#if(${restControllerStyle})
+import org.springframework.web.bind.annotation.RestController;
+#else
+import org.springframework.web.bind.annotation.RestController;
+#end
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+
+/**
+ * <p>
+ * $!{table.comment} 前端控制器
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${restControllerStyle})
+@RestController
+#else
+@RestController
+#end
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/admin/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+#if(${kotlin})
+class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
+
+#else
+#if(${superControllerClass})
+public class ${table.controllerName} extends ${superControllerClass} {
+#else
+public class ${table.controllerName} {
+#end
+	@Autowired
+	${table.entityName}Service ${table.entityName}ServiceImpl;
+	
+	/**
+	 * 按照id查询 status为0的信息
+	 */
+	 @RequestMapping("/selectById")
+	public ServerResponse<${table.entityName}> get${table.entityName}(@RequestParam(defaultValue = "-1", name = "id") String id) {
+		if (!"-1".equals(id)) {
+			${table.entityName} selectById = ${table.entityName}ServiceImpl.selectById(id);
+			if (selectById != null) {				
+				return ServerResponse.createBySuccess(selectById);
+			} else
+				return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+		} else
+			return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+	}
+	
+	/**
+	 * 分页查询
+	 * @param pageNum 页码默认1
+	 * @param pageSize 每页容量默认10
+	 * @param field 模糊查询字段
+	 * @param value 模糊查询字段的值
+	 * @param order 排序字段
+	 */
+	@RequestMapping("/selectByPage")
+	public ServerResponse<Page<${table.entityName}>> get${table.entityName}ByPage(@RequestParam(defaultValue = "1", name = "pageNum") Integer pageNum,
+			@RequestParam(defaultValue = "10", name = "pageSize") Integer pageSize,
+			@RequestParam(name = "field", required = false) String field,
+			@RequestParam(name = "value", required = false) String value,
+			@RequestParam(name = "order", required = false) String order) {
+		Page<${table.entityName}> page = new Page<${table.entityName}>(pageNum, pageSize);
+		EntityWrapper<${table.entityName}> ew = new EntityWrapper<${table.entityName}>();
+		if (field == null && value != null) {
+			ew.like("name", value);
+		}
+		if (field != null && value != null) {
+			ew.like(field, value);
+		}
+		if (order != null) {
+			ew.orderBy(order,false);
+		}else{
+		    ew.orderBy(MyConst.order_by,false);
+		}
+		Page<${table.entityName}> selectPage = ${table.entityName}ServiceImpl.selectPage(page, ew);
+		if (selectPage.getRecords().size() != 0)
+			return ServerResponse.createBySuccess(selectPage);
+		else
+			return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+
+	}
+	
+	
+	/**
+	 * 添加信息
+	 */
+	@PostMapping("/insert")
+	public ServerResponse<String> insert${table.entityName}(${table.entityName} info) {
+		if(info != null){
+		    info.setId(IdGen.uuid());
+			info.setCreateTime(new Date());
+			boolean insert = ${table.entityName}ServiceImpl.insert(info);
+			if (insert)
+				return ServerResponse.createBySuccess(ResponseCode.SUCCESS.getDesc());
+			else
+				return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+		}else
+			return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+	}
+	
+	/**
+	 * 按照id修改 status为0的信息
+	 */
+	@PostMapping("/update")
+	public ServerResponse<String> update${table.entityName}(${table.entityName} info) {
+		if (info != null && info.getId() != null) {
+			boolean updateById = ${table.entityName}ServiceImpl.updateById(info);
+			if (updateById)
+				return ServerResponse.createBySuccess(ResponseCode.SUCCESS.getDesc());
+			else
+				return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+		} else
+			return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+	}
+	
+	
+	/**
+	 * 逻辑删除
+	 */
+	@PostMapping("/delete")
+	public ServerResponse<String> logicDelete${table.entityName}(${table.entityName} info) {
+		if (info != null && info.getId() != null) {
+			boolean logicDelete = ${table.entityName}ServiceImpl.deleteById(info.getId());
+			if (logicDelete)
+				return ServerResponse.createBySuccess(ResponseCode.SUCCESS.getDesc());
+			else
+				return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+		} else
+			return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+	}
+	
+	/**
+	 * 恢复数据
+	 */
+	@PostMapping("/resotre")
+	public ServerResponse<String> resotre${table.entityName}(@RequestParam(defaultValue = "-1", name = "id") String id) {
+		if (!"-1".equals(id)) {
+			boolean resotre${table.entityName} = ${table.entityName}ServiceImpl.resotre${table.entityName}(id);
+			if (resotre${table.entityName})
+				return ServerResponse.createBySuccess(ResponseCode.SUCCESS.getDesc());
+			else
+				return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+		} else
+			return ServerResponse.createByErrorMessage(ResponseCode.ERROR.getDesc());
+	}
+	private String getTime(Date time){
+		SimpleDateFormat sd=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		return sd.format(time);
+	}
+}
+
+#end

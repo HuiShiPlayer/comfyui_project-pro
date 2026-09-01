@@ -1,0 +1,883 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   信息管理平台 - 资产库 图片列表 / 图片卡片 自定义样式
+   本文件为独立样式文件，页面相关样式统一维护在这里
+   主题色：#3b82f6（蓝） / #1e293b（深灰蓝） / #f9fafb（页面背景）
+   ========================================================================== */
+.showtext {
+	width: 6em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* 基础样式重置 */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+	background-color: #f9fafb;
+	color: #1e293b;
+	line-height: 1.5;
+}
+
+.container {
+	width: 100%;
+	/* max-width: 1200px; */
+	margin: 0 auto;
+	padding: 0 16px;
+}
+
+/* 头部样式 */
+header {
+	position: sticky;
+	top: 0;
+	z-index: 50;
+	background-color: white;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 0;
+}
+
+.site-title {
+	font-size: clamp(1.5rem, 3vw, 2.5rem);
+	font-weight: bold;
+	color: #3b82f6;
+	display: flex;
+	align-items: center;
+}
+
+.site-title span {
+	margin-right: 8px;
+}
+
+.header-hint {
+	display: none;
+	color: #64748b;
+}
+
+@media (min-width: 768px) {
+	.header-hint {
+		display: block;
+	}
+}
+
+/* 主内容区样式 */
+main {
+	padding: 32px 0;
+}
+
+/* 媒体网格布局 */
+.media-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 24px;
+}
+
+/* 媒体卡片样式 */
+.media-card {
+	background-color: white;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	transition: all 0.3s ease;
+}
+
+.media-card:hover {
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	transform: translateY(-4px);
+}
+
+/* 媒体内容样式 - 固定宽度，高度自适应 */
+.media-content {
+	width: 100%;
+	position: relative;
+}
+
+.media-image {
+	width: 100%;
+	height: auto;
+	display: block;
+	object-fit: cover;
+}
+
+.media-video-container {
+	width: 100%;
+	position: relative;
+	background-color: #f1f5f9;
+}
+
+.media-video {
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+}
+
+.video-play-icon {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: #3b82f6;
+	font-size: 48px;
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+/* 媒体信息区域 */
+.media-info {
+	padding: 16px;
+}
+
+.media-title {
+	font-weight: 600;
+	font-size: 18px;
+	margin-bottom: 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.media-actions {
+	display: flex;
+	gap: 8px;
+}
+
+/* 按钮样式 */
+.btn {
+	padding: 8px 16px;
+	border-radius: 6px;
+	font-weight: 500;
+	font-size: 14px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+	border: none;
+}
+
+.btn i {
+	margin-right: 6px;
+}
+
+.btn-primary {
+	background-color: #3b82f6;
+	color: white;
+}
+
+.btn-primary:hover {
+	background-color: #2563eb;
+	box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+
+.btn-primary:active {
+	transform: scale(0.95);
+}
+
+.btn-danger {
+	background-color: #FF0000;
+	color: white;
+}
+
+.btn-danger:hover {
+	background-color: #F00000;
+	box-shadow: 0 4px 6px rgba(230, 0, 0, 0.2);
+}
+
+.btn-danger:active {
+	transform: scale(0.95);
+}
+
+.btn-secondary {
+	background-color: white;
+	color: #3b82f6;
+	border: 1px solid #3b82f6;
+}
+
+.btn-secondary:hover {
+	background-color: #eff6ff;
+	box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+}
+
+.btn-secondary:active {
+	transform: scale(0.95);
+}
+
+/* 加载指示器 */
+.loading-indicator {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 32px;
+}
+
+.spinner {
+	width: 40px;
+	height: 40px;
+	border: 3px solid transparent;
+	border-top-color: #3b82f6;
+	border-bottom-color: #3b82f6;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+.loading-text {
+	margin-left: 12px;
+	color: #64748b;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+
+
+/* 页脚样式 */
+footer {
+	background-color: #1e293b;
+	color: white;
+	padding: 32px 0;
+	margin-top: 48px;
+}
+
+.footer-content {
+	text-align: center;
+}
+
+/* 下载通知 */
+.notification {
+	position: fixed;
+	bottom: 16px;
+	right: 16px;
+	background-color: #3b82f6;
+	color: white;
+	padding: 10px 16px;
+	border-radius: 6px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	z-index: 1000;
+	transform: translateY(40px);
+	opacity: 0;
+	transition: all 0.3s ease;
+}
+
+/* 辅助类 */
+.hidden {
+	display: none !important;
+}
+
+.content-auto {
+	content-visibility: auto;
+}
+
+/* 动画类 */
+.fade-in {
+	animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* 自定义多选框 */
+.custom-checkbox {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	width: 24px;
+	height: 24px;
+	border-radius: 6px;
+	border: 2px solid #ddd;
+	background: rgba(255, 255, 255, .8);
+	cursor: pointer;
+	transition: all .3s;
+	z-index: 10;
+}
+
+.custom-checkbox.checked {
+	background: #555;
+	/* 深灰色选中背景 */
+	border-color: #555;
+}
+
+.custom-checkbox::after {
+	content: "";
+	position: absolute;
+	display: none;
+	left: 8px;
+	top: 4px;
+	width: 6px;
+	height: 12px;
+	border: solid #fff;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.custom-checkbox.checked::after {
+	display: block;
+}
+
+.topBar {
+	position: fixed;
+	top: 10px;
+	/* 距离顶部10px */
+	right: 30px;
+	/* 距离右边10px */
+	z-index: 1000;
+	/* 确保按钮在其他元素之上 */
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+/* ---------- 1. 图片列表顶部信息条（右上角类别显示） ---------- */
+.media-list-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-top: 12px;
+	padding: 10px 16px;
+	background: #ffffff;
+	border: 1px solid #e8edf4;
+	border-radius: 10px;
+	box-shadow: 0 2px 10px rgba(30, 41, 59, 0.06);
+}
+
+.media-list-title {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1e293b;
+}
+
+.media-list-title::before {
+	content: "";
+	width: 4px;
+	height: 16px;
+	border-radius: 2px;
+	background: linear-gradient(180deg, #3b82f6, #60a5fa);
+}
+
+.media-list-count {
+	font-size: 12px;
+	font-weight: 400;
+	color: #94a3b8;
+}
+
+/* 右上角类别胶囊 + 悬浮下拉列表 */
+.media-cat-filter {
+	position: relative;
+	outline: none;
+}
+
+.media-cat-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 15px;
+	border-radius: 999px;
+	background: linear-gradient(135deg, #3b82f6, #60a5fa);
+	color: #ffffff;
+	font-size: 13px;
+	line-height: 1;
+	cursor: pointer;
+	user-select: none;
+	box-shadow: 0 3px 10px rgba(59, 130, 246, 0.25);
+	transition: all 0.25s ease;
+}
+
+.media-cat-filter:hover .media-cat-chip,
+.media-cat-filter:focus .media-cat-chip {
+	box-shadow: 0 5px 16px rgba(59, 130, 246, 0.35);
+	transform: translateY(-1px);
+}
+
+.media-cat-chip-label {
+	opacity: 0.85;
+	font-weight: 400;
+}
+
+.media-cat-chip-value {
+	font-weight: 700;
+	letter-spacing: 0.5px;
+}
+
+.media-cat-caret {
+	width: 0;
+	height: 0;
+	margin-left: 2px;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-top: 6px solid #ffffff;
+	transition: transform 0.25s ease;
+}
+
+.media-cat-filter:hover .media-cat-caret,
+.media-cat-filter:focus .media-cat-caret {
+	transform: rotate(180deg);
+}
+
+.media-cat-menu {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	min-width: 160px;
+	margin: 0;
+	padding: 6px;
+	list-style: none;
+	background: #ffffff;
+	border: 1px solid #e8edf4;
+	border-radius: 10px;
+	box-shadow: 0 12px 32px rgba(30, 41, 59, 0.14);
+	z-index: 120;
+	display: none;
+}
+
+.media-cat-option {
+	display: block;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	border-radius: 7px;
+	background: transparent;
+	color: #334155;
+	font-size: 13px;
+	text-align: left;
+	cursor: pointer;
+	transition: all 0.18s ease;
+}
+
+.media-cat-option:hover {
+	background: #eff6ff;
+	color: #2563eb;
+}
+
+/* ---------- 2. 图片卡片：图片区固定比例，底部信息不随图片大小移动 ---------- */
+.media-card {
+	--media-aspect: 4 / 3;
+	/* 图片区统一比例，可按喜好调整 */
+	display: flex;
+	flex-direction: column;
+	overflow: visible;
+	/* 允许“修改类别”下拉列表不被卡片裁剪 */
+}
+
+.media-content {
+	flex: 0 0 auto;
+	border-radius: 8px 8px 0 0;
+	overflow: hidden;
+}
+
+.media-video-container {
+	aspect-ratio: var(--media-aspect);
+	height: auto;
+}
+
+.media-video {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+}
+
+/* ---------- 3. 卡片底部信息区（名称 + 类别固定在此区域） ---------- */
+.media-info {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	padding: 14px 16px 16px;
+	border-top: 1px solid #eef2f7;
+}
+
+.media-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.media-name-row,
+.media-cat-row {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.media-label {
+	display: block;
+	font-size: 11px;
+	color: #94a3b8;
+	letter-spacing: 1px;
+}
+
+/* 图片名称：点击名称即可进入编辑状态，失焦后样式复原 */
+.media-name {
+	margin: -2px -6px 0;
+	padding: 2px 6px;
+	border-radius: 6px;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1e293b;
+	line-height: 1.5;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: text;
+	outline: none;
+	transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.media-name[contenteditable="true"]:hover {
+	background: #f8fafc;
+}
+
+.media-name[contenteditable="true"]:focus {
+	background: #f0f7ff;
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+	overflow-x: auto;
+	text-overflow: clip;
+}
+
+/* 类别徽章 */
+.media-cat-value {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	align-self: flex-start;
+	padding: 4px 12px;
+	border-radius: 999px;
+	background: #eff6ff;
+	color: #2563eb;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.media-cat-value::before {
+	content: "";
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #3b82f6;
+}
+
+/* ---------- 4. “修改类别”按钮（紧挨图片类别）+ 下拉列表 ---------- */
+.media-cat-controls {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+/* 类别下拉容器：悬停 / 键盘聚焦时在按钮下方弹出列表 */
+.cat-select {
+	position: relative;
+	flex: 0 0 auto;
+	outline: none;
+}
+
+.cat-edit-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 11px;
+	border: 1px solid #dbe4ef;
+	border-radius: 999px;
+	background: #ffffff;
+	color: #64748b;
+	font-size: 12px;
+	line-height: 1;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.cat-edit-btn::after {
+	content: "";
+	width: 0;
+	height: 0;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 5px solid #94a3b8;
+	transition: transform 0.2s ease;
+}
+
+.cat-edit-btn:hover {
+	border-color: #3b82f6;
+	color: #2563eb;
+	background: #eff6ff;
+}
+
+.cat-select:hover .cat-edit-btn::after,
+.cat-select:focus .cat-edit-btn::after {
+	transform: rotate(180deg);
+}
+
+/* 下拉列表：浮于按钮下方；类别多时可内部滚动，不被卡片 / 容器截断 */
+.cat-menu {
+	position: absolute;
+	top: calc(100% + 8px);
+	left: 0;
+	min-width: 150px;
+	margin: 0;
+	padding: 6px;
+	list-style: none;
+	background: #ffffff;
+	border: 1px solid #e8edf4;
+	border-radius: 10px;
+	box-shadow: 0 12px 32px rgba(30, 41, 59, 0.16);
+	z-index: 200;
+	display: none;
+	max-height: 45vh;
+	overflow-y: auto;
+	white-space: nowrap;
+}
+
+.media-cat-menu {
+	max-height: 45vh;
+	overflow-y: auto;
+}
+
+.cat-menu::-webkit-scrollbar,
+.media-cat-menu::-webkit-scrollbar {
+	width: 6px;
+}
+
+.cat-menu::-webkit-scrollbar-thumb,
+.media-cat-menu::-webkit-scrollbar-thumb {
+	background: rgba(100, 116, 139, 0.3);
+	border-radius: 3px;
+}
+
+.cat-option,
+.media-cat-option {
+	display: block;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	border-radius: 7px;
+	background: transparent;
+	color: #334155;
+	font-size: 13px;
+	text-align: left;
+	cursor: pointer;
+	transition: all 0.18s ease;
+}
+
+.cat-option:hover,
+.media-cat-option:hover {
+	background: #eff6ff;
+	color: #2563eb;
+}
+
+/* 下拉打开时，让所在卡片 / 列表条浮到最上层，避免被相邻卡片遮挡 */
+.media-card {
+	position: relative;
+	z-index: 1;
+}
+
+.media-card:hover,
+.media-card:focus-within {
+	z-index: 30;
+}
+
+/* 下拉打开时（JS 添加 dropdown-open），卡片浮到最上层，防止列表被下方卡片遮挡 */
+.media-card.dropdown-open {
+	z-index: 50;
+}
+
+.media-list-bar {
+	position: relative;
+	z-index: 50;
+}
+
+/* 下拉打开时（JS 添加 .open），放开主内容区的裁剪，防止长列表被截断 */
+#main.menu-open {
+	overflow: visible !important;
+}
+
+/* 下方空间不足时，下拉自动改为向上弹出，保证所有选项可见 */
+.cat-menu.up,
+.media-cat-menu.up {
+	top: auto;
+	bottom: calc(100% + 8px);
+}
+
+/* ---------- 5. 卡片底部操作按钮（下载 / 删除） ---------- */
+.media-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 14px;
+	padding-top: 12px;
+	border-top: 1px dashed #e8edf4;
+}
+
+.media-actions .custom-btn {
+	flex: 1;
+	margin: 0;
+	padding: 8px 6px;
+	font-size: 13px;
+}
+
+/* ---------- 6. 点击图片全屏预览（JS 控制开关，背景黑色半透明） ---------- */
+.media-preview-link {
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: none;
+	background: none;
+	cursor: zoom-in;
+}
+
+.preview-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.65);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.preview-overlay.open {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+.preview-backdrop {
+	position: absolute;
+	inset: 0;
+	cursor: pointer;
+}
+
+.preview-box {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	max-width: 92vw;
+	max-height: 70vh;
+}
+
+.preview-img {
+	display: block;
+	max-width: 92vw;
+	max-height: calc(70vh - 64px);
+	border-radius: 10px;
+	box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+}
+
+.preview-close {
+	position: absolute;
+	top: -14px;
+	right: -14px;
+	width: 34px;
+	height: 34px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	border-radius: 50%;
+	background: rgba(15, 23, 42, 0.75);
+	color: #ffffff;
+	font-size: 15px;
+	line-height: 1;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.preview-close:hover {
+	background: #ef4444;
+	transform: rotate(90deg);
+}
+
+.preview-cancel {
+	margin-top: 14px;
+	padding: 8px 28px;
+	border: 1px solid rgba(255, 255, 255, 0.55);
+	border-radius: 999px;
+	background: rgba(15, 23, 42, 0.45);
+	color: #ffffff;
+	font-size: 13px;
+	line-height: 1;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.preview-cancel:hover {
+	background: rgba(15, 23, 42, 0.75);
+	border-color: #ffffff;
+}
+
+/* ---------- 7. 供后续 JS 切换的扩展状态（非必须，预留接口） ---------- */
+.cat-select.open .cat-menu,
+.media-cat-filter.open .media-cat-menu {
+	display: block;
+}
+
+.media-name.editing {
+	background: #f0f7ff;
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* ---------- 8. 小屏适配 ---------- */
+@media (max-width: 640px) {
+	.media-list-bar {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.media-actions {
+		flex-direction: column;
+	}
+}
+
+.media-cat-menu,
+.media-cat-menu.up {
+	top: calc(100% + 8px) !important;
+	bottom: auto !important;
+}
+footer {
+		background-color: #1e293b;
+		color: white;
+		padding: 32px 0;
+		margin-top: 48px;
+	}
+
+	.footer-content {
+		text-align: center;
+	}

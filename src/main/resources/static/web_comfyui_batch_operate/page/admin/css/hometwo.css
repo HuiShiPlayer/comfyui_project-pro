@@ -1,0 +1,134 @@
+.panel {
+    border: none;
+    box-shadow: none;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+
+
+}
+
+.item .icon {
+    width: 68px;
+    height: 68px;
+    line-height: 68px;
+    display: inline-block;
+    margin: 0px 10px 0 0;
+    text-align: center;
+    font-size: 48px;
+    color: #fff;
+}
+
+.h145 {
+    height: 145px;
+}
+
+.item .text {
+    display: inline-block;
+    padding-top: 5px;
+
+}
+
+.item .text h3 {
+    font-size: 14px;
+}
+
+.item .text h4 {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.bg-blue {
+    background: #24a6f3;
+    color: #fff;
+}
+
+.bg-info {
+    background: #26c9ec;
+    color: #fff;
+}
+
+.bg-purple {
+    background: #7077b7;
+    color: #fff;
+}
+
+.bg-orange {
+    background: #fb9678;
+    color: #fff;
+}
+.bg-white{
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+/*?????*/
+.panel {
+    padding: 15px 25px;
+    margin-bottom: 15px;
+}
+.border {
+    border: 1px solid #dfdfdf;
+}
+.four-block{
+    height: 115px;
+    margin-bottom: 15px;
+    border:1px solid #ddd;
+}
+.four-block h1{
+    line-height: 1.5;
+    margin-top: 20px;
+}
+
+.item .bar-block .bar-bg{
+    background: rgba(255,255,255,0.5);
+}
+.item .bar-color{
+    background: #fff;
+}
+.bar-block .bar-bg{
+    border-radius: 0px;
+    height: 5px;
+    top: -14px;
+}
+
+.bar-block .bar-color{
+    border-radius: 0px;
+    height: 5px;
+}
+.bar-block .No{
+    top: -35px;
+    text-align: right;
+}
+.bar-purple{
+    background: #7077b7;
+}
+
+/*kuang*/
+.main .header{
+    background: #273647;
+    color: #fff;
+}
+.main .logo{
+    display: none;
+}
+.main .header .sidebar-fold{
+    background: #243445;
+}
+.main .header .custom-btn{
+    background-color: transparent;
+    color: #a7b1c2;
+}
+.main .header .custom-btn:hover, .main .header .custom-btn:focus{
+    background: transparent;
+    color: #fff;
+}
+.main .header .float-r > ul > li > a:hover{
+    color: #fff;
+}
+.main .header .float-r ul li a{
+    color: #a7b1c2;
+}
+.main .header .float-r ul.dropdown-menu li a{
+    color: #666;
+}

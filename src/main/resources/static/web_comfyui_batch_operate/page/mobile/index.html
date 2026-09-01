@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绘世玩家</title>
+    <link rel="stylesheet" href="css/style.css">
+	<script src="js/jquery.min.js"></script>
+	<script src="js/vue.global.js"></script>
+	<script src="js/base.js"></script>
+	<style>
+		[v-cloak] {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+    <div id="app" class="app-container">
+       <!-- <div class="top-bar">
+            <h1 class="logo">绘世玩家</h1>
+        </div> -->
+
+        <div class="content">
+            <!-- 生成记录 -->
+            <div class="page" v-if="currentPage === 'record'">                
+                <div class="record-tabs">
+                    <button class="tab" :class="{active: recordTab === 'all'}" @click="recordTab = 'all'">全部</button>
+                    <button class="tab" :class="{active: recordTab === 'image'}" @click="recordTab = 'image'">图片</button>
+                    <button class="tab" :class="{active: recordTab === 'video'}" @click="recordTab = 'video'">视频</button>
+                </div>
+
+                <div 
+                    class="masonry-grid" 
+                    >                  
+
+                    <div class="masonry-item" v-for="item in filteredRecords" :key="item.id" @click="openPreview(item)">
+                        <div class="card-media">
+                            <img v-if="item.type === 'image'" :src="item.url" >							
+                            <video class="video-preview" playsinline
+								webkit-playsinline
+								x5-video-player-type="h5"
+								x5-video-player-fullscreen="true"
+								preload="auto"  v-else  :src="item.url+'?timestamp='+currentTime" ref="videoPlayer" @loadeddata="setVideoFirstFrame">							
+								
+							</video>
+                        </div>
+                        <div class="card-label">{{item.type === 'image' ? '图片' : '视频'}}</div>
+                    </div>			
+                 
+                    <div class="empty" v-if="filteredRecords.length === 0">暂无生成记录</div>
+                </div>
+				<div class="panel">
+					<button class="gen-btn" @click="loadMoreData">加载更多</button>
+				</div>
+				<div class="back-top" @click="backToTop" >
+				            ↑
+				</div>
+				<div class="preview-modal" v-if="showPreviewModal" @click="closePreviewModal">
+				    <div class="preview-content">
+				        <img v-if="previewData.type === 'image'" :src="previewData.url">
+				        <video v-else controls autoplay :src="previewData.url"></video>
+				        <div class="preview-close" @click="closePreviewModal">✕</div>
+				    </div>
+				</div>
+            </div>
+
+            <!-- 图片生成 -->
+            <div class="page" v-if="currentPage === 'image'">
+				<div class="panel"> <button class="gen-btn" style="padding: 8px;" @click="changeApi" >切换API</button></div>
+               
+				<div class="page-title"></div>
+                <div class="gen-tabs">
+                    <button class="gtab" :class="{active: imageTab === 'text'}" @click="changeImageFunction('text',0)">文生图</button>
+                    <button class="gtab" :class="{active: imageTab === 'single'}" @click="changeImageFunction('single',4)">单图生图</button>
+                    <button class="gtab" :class="{active: imageTab === 'two'}" @click="changeImageFunction('two',5)">双图生图</button>
+					<button class="gtab" :class="{active: imageTab === 'three'}" @click="changeImageFunction('three',6)">三图生图</button>
+                </div>
+
+                <div class="panel" v-if="imageTab === 'text'">
+                    <div class="form-item">
+                        <label>提示词</label>
+                        <textarea v-model="imagePrompt" placeholder="请输入描述，如：唯美星空、高清8K、梦幻光影"></textarea>
+                    </div>
+                    <div class="form-item">
+                        <label>宽-高-种子</label>
+                        <input v-model="imageWith" placeholder="宽" />
+						<input v-model="imageHeight" placeholder="高" />
+						<input v-model="imageSeed" placeholder="种子" />
+                    </div>
+                    <button v-if="isGenerating == 0" class="gen-btn" @click="createImage">生成图片</button>
+                    <button v-else class="gen-btn" @click="createImage">生成中...</button>
+                </div>
+
+                <div class="panel" v-if="imageTab === 'single'">                
+					<input  type="file" 
+					        id="single" 
+					        style="display: none;"
+					        accept="image/*" 
+					        capture="camera" 
+					    >
+					 <div class="frame-box">
+						<div class="frame-item" @click="openUpload('single')">
+							<div v-if="!previewImage" class="plus-icon small">+</div>
+							<img v-else :src="previewImage" class="frame-preview" :max-height="imageHeight1/2">
+							<p v-if="!previewImage">参考图</p>
+							<button v-else class="gen-btn" style="padding: 3px;">点击更换</button>
+						</div>					  
+					</div>
+                    <div class="form-item">
+                        <label>提示词</label>
+                        <textarea v-model="imagePrompt1" placeholder="请输入生成要求"></textarea>
+                    </div>
+					<div class="form-item">
+					     <label>宽-高-种子</label>
+					    <input v-model="imageWith1" placeholder="宽" />
+						<input v-model="imageHeight1" placeholder="高" />
+						<input v-model="imageSeed1" placeholder="种子" />
+					</div>
+					<section style="text-align: center;">
+						<button class="gen-btn" style="width: 46%;background:#f472b6" @click="getResouces(11)">同步资源</button> |
+						<button v-if="isGenerating == 0"  style="width: 46%;" class="gen-btn" @click="createImage">生成图片</button>
+						<button v-else class="gen-btn"  style="width: 46%;margin:auto auto ;" >生成中...</button>
+					</section>
+				  
+				   
+                </div>
+
+                <div class="panel" v-if="imageTab === 'two'">
+					<input  type="file"
+					        id="21" 
+					        style="display: none;"
+					        accept="image/*" 
+					        capture="camera" 
+					    >
+					<input  type="file"
+					        id="22" 
+					        style="display: none;"
+					        accept="image/*" 
+					        capture="camera" 
+					    >
+					 <div class="frame-box">
+						<div class="frame-item" @click="openUpload('21')">
+							<div v-if="!twoP1" class="plus-icon small">+</div>
+							<img v-else :src="twoP1" class="frame-preview" :max-height="imageHeight2/2">
+							<p>参考图1</p>
+						</div>
+						<div class="frame-item" @click="openUpload('22')">
+							<div v-if="!twoP2" class="plus-icon small">+</div>
+							<img v-else :src="twoP2" class="frame-preview" :max-height="imageHeight2/2">
+							<p>参考图2</p>
+						</div>	
+					</div>
+                    <div class="form-item">
+                        <label>提示词</label>
+                        <textarea v-model="imagePrompt2" placeholder="请输入生成要求"></textarea>
+                    </div>
+					<div class="form-item">
+					    <label>宽-高-种子</label>
+					    <input v-model="imageWith2" placeholder="宽" />
+						<input v-model="imageHeight2" placeholder="高" />
+						<input v-model="imageSeed2" placeholder="种子" />
+					</div>
+					<section style="text-align: center;">
+						<button class="gen-btn" style="width: 46%;background:#f472b6" @click="getResouces(12)">同步资源</button> |
+						<button v-if="isGenerating == 0"  style="width: 46%;" class="gen-btn" @click="createImage">生成图片</button>
+						<button v-else class="gen-btn"  style="width: 46%;margin:auto auto ;" >生成中...</button>
+					</section>
+                </div>
+				
+				<div class="panel" v-if="imageTab === 'three'">
+					<input  type="file"
+					        id="31" 
+					        style="display: none;"
+					        accept="image/*" 
+					        capture="camera" 
+					    >
+					<input  type="file"
+					        id="32" 
+					        style="display: none;"
+					        accept="image/*" 
+					        capture="camera" 
+					    >
+					<input  type="file"
+					        id="33" 
+					        style="display: none;"
+					        accept="image/*" 
+					        capture="camera" 
+					    >
+					 <div class="frame-box">
+						<div class="frame-item" @click="openUpload('31')">
+							<div v-if="!threeP1" class="plus-icon small">+</div>
+							<img v-else :src="threeP1" class="frame-preview" :max-height="imageHeight3/2">
+							<p>参考图1</p>
+						</div>
+						<div class="frame-item" @click="openUpload('32')">
+							<div v-if="!threeP2" class="plus-icon small">+</div>
+							<img v-else :src="threeP2" class="frame-preview" :max-height="imageHeight3/2">
+							<p>参考图2</p>
+						</div>
+						<div class="frame-item" @click="openUpload('33')">
+							<div v-if="!threeP3" class="plus-icon small">+</div>
+							<img v-else :src="threeP3" class="frame-preview" :max-height="imageHeight3/2">
+							<p>参考图3</p>
+						</div>	
+					</div>
+				    <div class="form-item">
+				        <label>提示词</label>
+				        <textarea v-model="imagePrompt3" placeholder="请输入生成要求"></textarea>
+				    </div>
+					<div class="form-item">
+					    <label>宽-高-种子</label>
+					    <input v-model="imageWith3" placeholder="宽" />
+						<input v-model="imageHeight3" placeholder="高" />
+						<input v-model="imageSeed3" placeholder="种子" />
+					</div>
+				   <section style="text-align: center;">
+						<button class="gen-btn" style="width: 46%;background:#f472b6" @click="getResouces(13)">同步资源</button> |
+						<button v-if="isGenerating == 0"  style="width: 46%;" class="gen-btn" @click="createImage">生成图片</button>
+						<button v-else class="gen-btn"  style="width: 46%;margin:auto auto ;" >生成中...</button>
+					</section>
+				</div>
+            </div>
+
+            <!-- 视频生成 -->
+            <div class="page" v-if="currentPage === 'video'">
+                <div class="panel"> <button class="gen-btn" style="padding: 8px;" @click="changeVideoApi" >切换API</button></div>
+				<div class="page-title"></div>
+                <div class="gen-tabs">
+                    <button class="gtab" :class="{active: videoTab === 'text'}" @click="changeVideoFunction('text',1)">文生视频</button>
+                    <button class="gtab" :class="{active: videoTab === 'img'}" @click="changeVideoFunction('img',2)">图生视频</button>
+                    <button class="gtab" :class="{active: videoTab === 'frame'}" @click="changeVideoFunction('frame',3)">双图生视频</button>
+                    <button class="gtab" :class="{active: videoTab === 'video'}" @click="changeVideoFunction('video',7)">视频参考</button>
+                </div>
+
+                <div class="panel" v-if="videoTab === 'text'">
+                    <div class="form-item">
+                        <label>视频提示词</label>
+                        <textarea v-model="videoPrompt" placeholder="描述视频动态效果"></textarea>
+                    </div>
+					<div class="form-item">
+					    <label>宽-高-时长</label>
+					    <input v-model="videoWidth" placeholder="宽" />
+						<input v-model="videoHeight" placeholder="高"   />
+						<input v-model="longs" placeholder="时长"/>
+					</div>
+					<div class="form-item">
+						<label>种子-块交换</label>
+					    <input v-model="videoSeed" placeholder="种子"   />
+						<input v-model="blocks_to_swap" placeholder="块交换"  />
+					</div>
+                   
+                    <button  v-if="isGenerating == 0" class="gen-btn" @click="createVideo">生成视频</button>
+					<button  v-else class="gen-btn" @click="createVideo">生成中...</button>
+                </div>
+
+                <div class="panel" v-if="videoTab === 'img'">
+					<input  type="file"
+					        id="singleVideo" 
+					        style="display: none;"
+					        accept="image/*" 
+					        capture="camera" 
+					    >
+					 <div class="frame-box">
+						<div class="frame-item" @click="openUpload('singleVideo')">
+							<div v-if="!previewVideoImg" class="plus-icon small">+</div>
+							<img v-else :src="previewVideoImg" class="frame-preview" :max-height="videoHeight1/2">
+							<p v-if="!previewVideoImg">参考图</p>
+							<button v-else class="gen-btn" style="padding: 3px;">点击更换</button>
+						</div>					  
+					</div>
+					<div class="form-item">
+					    <label>提示词</label>
+					    <textarea v-model="videoPrompt1" placeholder="请输入生成要求"></textarea>
+					</div>
+					<div class="form-item">
+					    <label>宽-高-时长</label>
+					    <input v-model="videoWidth1" placeholder="宽"/>
+						<input v-model="videoHeight1" placeholder="高"  />
+						 <input v-model="longs1" placeholder="时长" />
+					</div>
+					<div class="form-item">
+						<label>种子-块交换</label>
+						<input v-model="videoSeed1" placeholder="种子"   />
+					    <input v-model="blocks_to_swap1" placeholder="块交换"  />					
+					</div>
+					<section style="text-align: center;">
+						<button class="gen-btn" style="width: 46%;background:#f472b6" @click="getResouces(21)">同步资源</button> |
+						<button v-if="isGenerating == 0"  style="width: 46%;" class="gen-btn" @click="createVideo">生成图片</button>
+						<button v-else class="gen-btn"  style="width: 46%;margin:auto auto ;" >生成中...</button>
+					</section>
+                </div>
+
+                <div class="panel" v-if="videoTab === 'frame'">
+                    <div class="frame-box">
+						<input  type="file"
+						        id="frameStart" 
+						        style="display: none;"
+						        accept="image/*" 
+						        capture="camera" 
+						    >
+						<input  type="file"
+						        id="frameEnd" 
+						        style="display: none;"
+						        accept="image/*" 
+						        capture="camera" 
+						    >
+                        <div class="frame-item" @click="openUpload('frameStart')">
+                            <div v-if="!frameStart" class="plus-icon small">+</div>
+                            <img v-else :src="frameStart" class="frame-preview" :max-height="videoHeight2/2">
+                            <p>首帧|参考1</p>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="frame-item" @click="openUpload('frameEnd')">
+                            <div v-if="!frameEnd" class="plus-icon small">+</div>
+                            <img v-else :src="frameEnd" class="frame-preview" :max-height="videoHeight2/2">
+                            <p>尾帧|参考2</p>
+                        </div>
+                    </div>
+                    <div class="form-item">
+                        <label>过渡提示词</label>
+                        <textarea v-model="videoPrompt2" placeholder="描述帧间过渡效果"></textarea>
+                    </div>
+					<div class="form-item">
+					    <label>宽-高-时长</label>
+					    <input v-model="videoWidth2" placeholder="宽"  />
+						<input v-model="videoHeight2" placeholder="高"  />
+						<input v-model="longs2" placeholder="时长"/>
+					</div>
+					<div class="form-item">
+						<label>种子-块交换</label>					    
+						<input v-model="videoSeed2" placeholder="种子"/>
+						<input v-model="blocks_to_swap2" placeholder="块交换"/>
+					</div>
+					<section style="text-align: center;">
+						<button class="gen-btn" style="width: 46%;background:#f472b6" @click="getResouces(22)">同步资源</button> |
+						<button v-if="isGenerating == 0"  style="width: 46%;" class="gen-btn" @click="createVideo">生成图片</button>
+						<button v-else class="gen-btn"  style="width: 46%;margin:auto auto ;" >生成中...</button>
+					</section>
+                </div>
+
+                <div class="panel" v-if="videoTab === 'video'">
+					<div class="form-item">
+					    <label style="color: red;font-weight: 700;">注意：视频不宜过大</label>					   
+					</div>
+					 <div class="frame-box">
+						<input  type="file"
+								id="videoReferenceImage" 
+								style="display: none;"
+								accept="image/*" 
+								capture="camera" 
+							>
+						<input  type="file"
+								id="previewSourceVideo" 
+								style="display: none;"
+								accept="video/*" 
+								capture="camera" 
+							>
+						<div class="frame-item" @click="openUpload('videoReferenceImage')">
+							<div v-if="!videoReferenceImage" class="plus-icon small">+</div>
+							<img v-else :src="videoReferenceImage" class="frame-preview" :max-height="videoHeight3/2">
+							<p>首帧</p>
+						</div>
+						<div class="arrow">+</div>
+						<div class="frame-item" @click="openUpload('previewSourceVideo')">
+							<div v-if="!previewSourceVideo" class="plus-icon small">+</div>
+							<video v-else :src="previewSourceVideo" class="frame-preview" muted controls :max-height="videoHeight3/2">
+								<source :src="previewSourceVideo+'?timestamp='+currentTime" type="video/mp4">
+								<source :src="previewSourceVideo+'?timestamp='+currentTime" type="video/ogg">
+								您的浏览器不支持 HTML5 video 标签。
+							</video>
+							<p>原视频</p>
+						</div>
+                    </div>
+                   
+                    <div class="form-item">
+                        <label>重绘提示词</label>
+                        <textarea v-model="videoPrompt3" placeholder="描述重绘风格"></textarea>
+                    </div>
+					
+					<div class="form-item">
+					    <label>宽-高-时长</label>
+					    <input v-model="videoWidth3" placeholder="宽" />
+						<input v-model="videoHeight3" placeholder="高" />
+						<input v-model="longs3" placeholder="总帧数" />
+					</div>
+					<div class="form-item">
+					    <label>跳过-种子-块交换</label>					    
+						<input v-model="skip3" placeholder="跳过帧" />
+						<input v-model="videoSeed3" placeholder="种子" />
+						<input v-model="blocks_to_swap3" placeholder="块交换" />
+					</div> 
+					<section style="text-align: center;">
+						<button class="gen-btn" style="width: 46%;background:#f472b6" @click="getResouces(23)">同步资源</button> |
+						<button v-if="isGenerating == 0"  style="width: 46%;" class="gen-btn" @click="createVideo">生成图片</button>
+						<button v-else class="gen-btn"  style="width: 46%;margin:auto auto ;" >生成中...</button>
+					</section>
+                </div>
+            </div>
+
+            <!-- 提示词 -->
+            <div class="page" v-if="currentPage === 'prompt'">
+                <div class="page-title flex-title">
+                    <span>提示词管理</span>
+                    <button class="add-btn" @click="addPrompt">+ 新增</button>
+                </div>
+                <div class="prompt-list">
+                    <div class="prompt-item" v-for="(item,i) in prompts" :key="i">
+                        <div class="p-title">{{item.name}}</div>
+                        <div class="p-content">{{item.prompt}}</div>
+                        <div class="p-btns">
+                            <!-- <button class="p-btn use" @click="usePrompt(item.prompt)">使用</button> -->
+                            <button class="p-btn edit" @click="openEditModal(item)">编辑</button>
+                            <button class="p-btn del" @click="delPrompt(item,i)">删除</button>
+                        </div>
+                    </div>
+                </div>
+				<div class="panel">
+					<button class="gen-btn" @click="loadMorePrompts">加载更多</button>
+				</div>
+            </div>
+        </div>
+		
+		<div class="modal-mask" v-show="showEditApi">
+		    <div class="modal-box">
+		        <h3>选择API</h3>
+		        <div class="modal-form">
+		            <input  v-for="(item,index) in apis" type="text" :style="item.isSelect?'background-color: #9d9dd6':''" :value="item.isSelect?'【默认】'+item.name:item.name" readonly @click="selectApi(item,index)">
+		        </div>
+		        <div class="modal-btns">
+		            <button class="cancel" @click="closeEditModalApi">取消</button>
+		            <button class="confirm" @click="saveEditAPI">确定</button>
+		        </div>
+		    </div>
+		</div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <button class="nav-item" :class="{active:currentPage==='record'}" @click="switchPage('record')">
+                <span class="icon">📋</span><span>记录</span>
+            </button>
+            <button class="nav-item" :class="{active:currentPage==='image'}" @click="switchPage('image')">
+                <span class="icon">🖼️</span><span>图片</span>
+            </button>
+            <button class="nav-item" :class="{active:currentPage==='video'}" @click="switchPage('video')">
+                <span class="icon">🎥</span><span>视频</span>
+            </button>
+            <button class="nav-item" :class="{active:currentPage==='prompt'}" @click="switchPage('prompt')">
+                <span class="icon">✍️</span><span>提示词</span>
+            </button>
+        </div>
+
+        <!-- 上传弹窗 -->
+        <div class="action-sheet" v-show="showSheet" @click="showSheet=false">
+            <div class="sheet-body" @click.stop>
+                <div class="sheet-item" @click="selectPhoto">相册选择</div>
+                <div class="sheet-item" @click="selectCamera">拍照</div>
+                <div class="sheet-cancel" @click="showSheet=false">取消</div>
+            </div>
+        </div>
+
+        <!-- 编辑模态框 -->
+        <div class="modal-mask" v-show="showEditModal" @click="closeEditModal">
+            <div class="modal-box" @click.stop>
+                <h3>编辑提示词</h3>
+                <div class="modal-form">
+                    <input type="text" placeholder="请输入标题" v-model="prompt.name">
+                    <textarea placeholder="请输入提示词内容" v-model="prompt.prompt"></textarea>
+                </div>
+                <div class="modal-btns">
+                    <button class="cancel" @click="closeEditModal">取消</button>
+                    <button class="confirm" @click="saveEdit">确定</button>
+                </div>
+            </div>
+			
+        </div>
+		
+		
+
+        <!-- 提示框 -->
+        <div class="toast" :class="{show: toastShow}" :style="{background: toastBg}">
+            {{ toastText }}
+        </div>
+    </div>
+
+  
+    <script src="js/app.js"></script>
+</body>
+</html>

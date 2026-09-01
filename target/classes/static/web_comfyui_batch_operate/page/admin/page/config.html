@@ -1,0 +1,149 @@
+<!--浏览分类-->
+
+<script>
+	$(function() {
+		$('.contentHolder').perfectScrollbar();
+	});
+</script>
+<style type="text/css">
+	.showtext {
+		width: 6em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+</style>
+<script src="./page/vue/qrcode.min.js"></script>
+<div class="contentHolder ng-scope ps-container" id="main">
+	<div class="container-fluid" v-cloak>
+
+		<!--面包屑导航-->
+		<div class="row">
+			<ol class="breadcrumb">
+				<li>当前位置</li>
+				<li>基础管理</li>
+				<li>基础设置</li>
+			</ol>
+		</div>
+		<!--面包屑导航结束-->
+		<!--主题内容开始-->
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="list-box">
+					
+
+					
+					<table class="dataTable row-border m-t-md">
+						<thead>
+							<tr>
+								<th>序号</th>
+								<th>名称</th>
+								<th>配置</th>
+								<th>创建时间</th>
+								<th><i class="icon-set-line fw"></i>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(item,index) in list">
+								<td>{{index+1}}</td>
+								<td>
+									{{item.name}}
+								</td>
+								<td v-if="item.id==8">
+									{{item.url =="default" ? "24G": "48G" }}
+								</td>
+								<td v-else>
+									{{item.url}}
+								</td>
+								<td>
+									{{item.createTime}}
+								</td>
+								<td>
+									<button v-if="item.id == 9999"  class="custom-btn custom-btn-success pd-md" data-toggle="modal" data-target="#getCode" @click="getCode(item)">点击扫码</button>
+									<button :disabled="item.type == 0" class="custom-btn custom-btn-danger pd-md" data-toggle="modal" data-target="#addData" @click="setItem(item)">修改配置</button>
+								
+								</td>
+							</tr>
+						</tbody>
+					</table>					
+				</div>
+			</div>
+		</div>
+		<!--主题内容结束-->
+		<div class="modal fade" id="addData" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog" style="width: 800px">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						
+						<h4 class="modal-title" id="myModalLabel" >修改配置项</h4>
+					</div>
+					<div class="modal-body">
+						<form class="form-horizontal m-t-lg" role="form" id="form1">
+
+							<div class="form-group">
+								<label class="col-sm-2 control-label"><span class="text-danger">*</span>名称：</label>
+								<div class="col-sm-5">
+									<input disabled v-model="data.name" class="form-control">
+								</div>
+							</div>
+							
+							<div class="form-group" v-if="data.id ==7">
+								<label class="col-sm-2 control-label"><span class="text-danger">*</span>API来源：</label>								
+								<div class="col-sm-5">
+									<select class="form-control" v-model="data.url">										
+										<option  value="Comfyui" >Comfyui</option>
+										<option  value="RunningHub" >RunningHub</option>
+										<option  value="CloudPlatform" >云平台</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group" v-else-if="data.id ==8">
+								<label class="col-sm-2 control-label"><span class="text-danger">*</span>RH显卡型号：</label>								
+								<div class="col-sm-5">
+									<select class="form-control" v-model="data.url">										
+										<option  value="default" >24G</option>
+										<option  value="plus" >48G</option>					
+									</select>
+								</div>
+							</div>
+							<div class="form-group" v-else>
+								<label class="col-sm-2 control-label"><span class="text-danger">*</span>配置项：</label>
+								<div class="col-sm-5">
+									<input v-model="data.url" class="form-control">
+								</div>
+							</div>
+							
+							
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="custom-btn  custom-btn-default" data-dismiss="modal" id="cancel">取消</button>
+						<button type="button" class="custom-btn modalhide custom-btn-primary" id="" @click="saveData()">确定</button>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="modal fade" id="getCode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog" style="width: 500px">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>						
+						<h4 class="modal-title" id="myModalLabel" >手机扫码</h4>
+					</div>
+					<div class="modal-body" style="margin: auto auto;text-align: center;">
+						<img src="" alt="" id="mobile">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="custom-btn  custom-btn-default" data-dismiss="modal" id="cancelGetCode">取消</button>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+	</div>
+</div>
+<script src="./page/vue/config_vue.js"></script>

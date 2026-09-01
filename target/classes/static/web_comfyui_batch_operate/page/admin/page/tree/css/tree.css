@@ -1,0 +1,84 @@
+.layui-elem-field {
+    padding: 10px 15px;
+}
+
+.layui-form-select dl {
+    z-index: 9999;
+}
+
+.layui-upload-img {
+    width: 100px;
+}
+
+
+/* tree */
+
+.layui-form-item .layui-form-checkbox[lay-skin=primary] {
+    margin: 0;
+}
+
+.tree-box {
+    display: block;
+    margin: 5px 0 0 10px;
+}
+
+.tree-item {
+    margin: 10px 0 0
+}
+
+.tree-info-box {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.tree-item .layui-icon {
+    margin-right: 5px;
+}
+
+.title-name {
+    display: inline-block;
+    margin: 0 5px;
+}
+
+.tree-btn-group {
+    display: inline-block;
+    margin-left: 20px;
+    font-size: 12px;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.node-btn {
+    display: block;
+    border: 1px solid #ccc;
+    float: left;
+    padding: 2px 3px;
+    cursor: pointer;
+    margin-left: -1px;
+}
+
+.node-btn .layui-icon {
+    margin: 0
+}
+
+.node-btn.add-node-btn {
+    background-color: #009688;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.node-btn.edit-node-btn {
+    background-color: #1E9FFF;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.node-btn.del-node-btn {
+    background-color: #FF5722;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+}
